@@ -1,0 +1,18 @@
+id: node.faq.field_detailed_question
+status: true
+langcode: en
+field_name: field_detailed_question
+entity_type: node
+bundle: faq
+label: 'Detailed Question'
+description: ''
+required: false
+default_value: {  }
+default_value_function: ''
+settings:
+  text_processing: '0'
+dependencies:
+  entity:
+    - field.field.node.field_detailed_question
+    - node.type.faq
+field_type: text_long

@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * The FAQ module allows users to create a FAQ page, with questions and answers
+ * displayed in different styles, according to the settings.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function faq_permission(){
+    /**
+     * Permissions of the faq module
+     */
+    $permissions = array();
+    
+    $permissions['administer faq'] = array(
+        'title' => t('Administer FAQ module'),
+        'description' => t('Allows user to administer FAQ module settings')
+    );
+    
+    $permissions['administer faq order'] = array(
+        'title' => t('Administer FAQ order'),
+        'description' => t('Allows user to order FAQ entities.')
+    );
+    
+    $permissions['view faq page'] = array(
+        'title' => t('View FAQ pages'),
+        'description' => t('Allows user to view FAQ pages.')
+    );
+    
+    return $permissions;
+}
+
+?>
