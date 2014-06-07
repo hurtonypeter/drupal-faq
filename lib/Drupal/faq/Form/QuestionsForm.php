@@ -1,0 +1,24 @@
+<?php
+
+namespace Drupal\faq\Form;
+
+use Drupal\Core\Form\FormBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+class QuestionsForm extends FormBase {
+    
+    public function getFormId() {
+        return 'faq_questions_settings_form';
+    }
+    
+    public function buildForm(array $form, array &$form_state) {
+        $form = array();
+        
+        return $form;
+    }
+
+    public function submitForm(array &$form, array &$form_state) {
+        
+    }
+
+}
