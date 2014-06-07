@@ -22,7 +22,7 @@ class FaqController extends ControllerBase{
         $set = \Drupal::config('faq.settings');
         $build = array(
             '#type' => 'markup',
-            '#markup' => t($set->get('faq_title'))
+            '#markup' => t($set->get('title'))
         );
         return $build;
     }
