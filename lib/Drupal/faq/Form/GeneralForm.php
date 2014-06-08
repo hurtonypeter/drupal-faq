@@ -12,7 +12,6 @@ class GeneralForm extends FormBase {
     }
     
     public function buildForm(array $form, array &$form_state) {
-        $form = array();
         $faq_settings = \Drupal::config('faq.settings');
         
         $form['faq_title'] = array(

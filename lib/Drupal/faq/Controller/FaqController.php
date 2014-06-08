@@ -36,18 +36,22 @@ class FaqController extends ControllerBase{
     }
     
     public function questionsSettings(){
-        $build = array(
-            '#type' => 'markup',
-            '#markup' => t("questions settings page")
-        );
+        $build = array();
+        
+        $build['faq_questions_settings_form'] = $this->formBuilder()->getForm('Drupal\faq\Form\QuestionsForm');
+        
         return $build;
     }
     
     public function categoriesSettings(){
-        $build = array(
-            '#type' => 'markup',
-            '#markup' => t("categories settings page")
-        );
+        $build = array();
+        
+        if(!$this->moduleHandler()->moduleExists('taxonomy')){
+            drupal_set_message(t('Categorization of questions will not work without the "taxonomy" module being enabled.'), 'error');
+        }
+        
+        $build['faq_categories_settings_form'] = $this->formBuilder()->getForm('Drupal\faq\Form\CategoriesForm');
+        
         return $build;
     }
 }
