@@ -28,14 +28,6 @@ faq.faq-admin:
     requirements:
         _permission: 'administer faq'
 
-faq.faq-admin.general:
-    path: '/admin/config/content/faq/general'
-    defaults:
-        _title: 'General'
-        _content: 'Drupal\faq\Controller\FaqController::generalSettings'
-    requirements:
-        _permission: 'administer faq'
-
 faq.faq-admin.questions:
     path: '/admin/config/content/faq/questions'
     defaults:

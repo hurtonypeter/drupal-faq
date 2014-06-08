@@ -32,24 +32,3 @@ function faq_permission(){
     
     return $permissions;
 }
-
-/**
- * Implements hook_menu().
- */
-function  faq_menu() {
-    $items = array();
-    
-    $items['admin/config/content'] = array(
-        'title' => 'Frequently Asked Questions',
-        'description' => 'Allows the user to configure the layout of questions and answers on a FAQ page.',
-        'route_name' => 'faq.faq-admin'
-    );
-    
-    $items['admin/config/content/faq'] = array(
-        'title' => 'Frequently Asked Questions',
-        'description' => 'Allows the user to configure the layout of questions and answers on a FAQ page.',
-        'route_name' => 'faq.faq-admin.general'
-    );
-    
-    return $items;
-}

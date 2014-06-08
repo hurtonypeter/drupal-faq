@@ -1,0 +1,12 @@
+faq.admin.categories:
+    title: 'Categories'
+    route_name: faq.faq-admin.categories
+    base_route: system.admin_config_content
+faq.admin.questions:
+    title: 'Questions'
+    route_name: faq.faq-admin.questions
+    base_route: system.admin_config_content
+faq.admin:
+    title: 'General'
+    route_name: faq.faq-admin
+    base_route: system.admin_config_content
