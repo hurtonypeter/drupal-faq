@@ -13,7 +13,7 @@ class CategoriesForm extends ConfigFormBase {
     }
     
     public function buildForm(array $form, array &$form_state) {
-        $faq_settings = \Drupal::config('faq.settings');
+        $faq_settings = $this->config('faq.settings');
         
         // Set up a hidden variable.
         $form['faq_display'] = array(
@@ -125,33 +125,27 @@ class CategoriesForm extends ConfigFormBase {
             }
         }
         
-        $form['actions'] = array('#type' => 'actions');
-        $form['actions']['submit'] = array(
-            '#type' => 'submit',
-            '#value' => $this->t('Save configuration')
-        );
-        
-        return $form;
+        return parent::buildForm($form, $form_state);
     }
 
     public function submitForm(array &$form, array &$form_state) {
         // Remove unnecessary values.
         form_state_values_clean($form_state);
         
-        $faq_settings = \Drupal::config('faq.settings');
+        $this->config('faq.settings')
+            ->set('use_categories', $form_state['values']['faq_use_categories'])
+            ->set('category_display', $form_state['values']['faq_category_display'])
+            ->set('category_listing', $form_state['values']['faq_category_listing'])
+            ->set('category_hide_qa_accordion', $form_state['values']['faq_category_hide_qa_accordion'])
+            ->set('count', $form_state['values']['faq_count'])
+            ->set('answer_category_name', $form_state['values']['faq_answer_category_name'])
+            ->set('group_questions_top', $form_state['values']['faq_group_questions_top'])
+            ->set('hide_child_terms', $form_state['values']['faq_hide_child_terms'])
+            ->set('show_term_page_children', $form_state['values']['faq_show_term_page_children'])
+            ->set('omit_vocabulary', $form_state['values']['faq_omit_vocabulary'])
+            ->save();
         
-        $faq_settings->set('use_categories', $form_state['values']['faq_use_categories']);
-        $faq_settings->set('category_display', $form_state['values']['faq_category_display']);
-        $faq_settings->set('category_listing', $form_state['values']['faq_category_listing']);
-        $faq_settings->set('category_hide_qa_accordion', $form_state['values']['faq_category_hide_qa_accordion']);
-        $faq_settings->set('count', $form_state['values']['faq_count']);
-        $faq_settings->set('answer_category_name', $form_state['values']['faq_answer_category_name']);
-        $faq_settings->set('group_questions_top', $form_state['values']['faq_group_questions_top']);
-        $faq_settings->set('hide_child_terms', $form_state['values']['faq_hide_child_terms']);
-        $faq_settings->set('show_term_page_children', $form_state['values']['faq_show_term_page_children']);
-        $faq_settings->set('omit_vocabulary', $form_state['values']['faq_omit_vocabulary']);
-        
-        $faq_settings->save();
+        parent::submitForm($form, $form_state);
     }
 
 }

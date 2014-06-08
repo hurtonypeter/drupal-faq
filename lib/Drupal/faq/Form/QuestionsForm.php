@@ -12,7 +12,7 @@ class QuestionsForm extends ConfigFormBase {
     }
     
     public function buildForm(array $form, array &$form_state) {
-        $faq_settings = \Drupal::config('faq.settings');
+        $faq_settings = $this->config('faq.settings');
         
         $display_options['questions_inline'] = $this->t('Questions inline');
         $display_options['questions_top'] = $this->t('Clicking on question takes user to answer further down the page');
@@ -136,37 +136,31 @@ class QuestionsForm extends ConfigFormBase {
             '#default_value' => $faq_settings->get('default_sorting')
         );
         
-        $form['actions'] = array('#type' => 'actions');
-        $form['actions']['submit'] = array(
-            '#type' => 'submit',
-            '#value' => $this->t('Save configuration')
-        );
-        
-        return $form;
+        return parent::buildForm($form, $form_state);
     }
 
     public function submitForm(array &$form, array &$form_state) {
         // Remove unnecessary values.
         form_state_values_clean($form_state);
         
-        $faq_settings = \Drupal::config('faq.settings');
+        $this->config('faq.settings')
+            ->set('display', $form_state['values']['faq_display'])
+            ->set('question_listing', $form_state['values']['faq_question_listing'])
+            ->set('qa_mark', $form_state['values']['faq_qa_mark'])
+            ->set('question_label', $form_state['values']['faq_question_label'])
+            ->set('answer_label', $form_state['values']['faq_answer_label'])
+            ->set('question_length', $form_state['values']['faq_question_length'])
+            ->set('question_long_form', $form_state['values']['faq_question_long_form'])
+            ->set('hide_qa_accordion', $form_state['values']['faq_hide_qa_accordion'])
+            ->set('show_expand_all', $form_state['values']['faq_show_expand_all'])
+            ->set('use_teaser', $form_state['values']['faq_use_teaser'])
+            ->set('show_node_links', $form_state['values']['faq_show_node_links'])
+            ->set('back_to_top', $form_state['values']['faq_back_to_top'])
+            ->set('disable_node_links', $form_state['values']['faq_disable_node_links'])
+            ->set('default_sorting', $form_state['values']['faq_default_sorting'])
+            ->save();
         
-        $faq_settings->set('display', $form_state['values']['faq_display']);
-        $faq_settings->set('question_listing', $form_state['values']['faq_question_listing']);
-        $faq_settings->set('qa_mark', $form_state['values']['faq_qa_mark']);
-        $faq_settings->set('question_label', $form_state['values']['faq_question_label']);
-        $faq_settings->set('answer_label', $form_state['values']['faq_answer_label']);
-        $faq_settings->set('question_length', $form_state['values']['faq_question_length']);
-        $faq_settings->set('question_long_form', $form_state['values']['faq_question_long_form']);
-        $faq_settings->set('hide_qa_accordion', $form_state['values']['faq_hide_qa_accordion']);
-        $faq_settings->set('show_expand_all', $form_state['values']['faq_show_expand_all']);
-        $faq_settings->set('use_teaser', $form_state['values']['faq_use_teaser']);
-        $faq_settings->set('show_node_links', $form_state['values']['faq_show_node_links']);
-        $faq_settings->set('back_to_top', $form_state['values']['faq_back_to_top']);
-        $faq_settings->set('disable_node_links', $form_state['values']['faq_disable_node_links']);
-        $faq_settings->set('default_sorting', $form_state['values']['faq_default_sorting']);
-        
-        $faq_settings->save();
+        parent::submitForm($form, $form_state);
     }
 
 }

@@ -40,24 +40,20 @@ class GeneralForm extends ConfigFormBase {
             '#default_value' => $faq_settings->get('custom_breadcrumbs')
         );
         
-        $form['actions'] = array('#type' => 'actions');
-        $form['actions']['submit'] = array(
-            '#type' => 'submit',
-            '#value' => $this->t('Save configuration')
-        );
-        
-        return $form;
+        return parent::buildForm($form, $form_state);
     }
 
     public function submitForm(array &$form, array &$form_state) {
         // Remove unnecessary values.
         form_state_values_clean($form_state);
         
-        $faq_settings = \Drupal::config('faq.settings');
-        $faq_settings->set('title', $form_state['values']['faq_title']);
-        $faq_settings->set('description', $form_state['values']['faq_description']);
-        $faq_settings->set('custom_breadcrumbs', $form_state['values']['faq_custom_breadcrumbs']);
-        $faq_settings->save();
+        $this->config('faq.settings')
+            ->set('title', $form_state['values']['faq_title'])
+            ->set('description', $form_state['values']['faq_description'])
+            ->set('custom_breadcrumbs', $form_state['values']['faq_custom_breadcrumbs'])
+            ->save();
+        
+        parent::submitForm($form, $form_state);
     }
 
 }
