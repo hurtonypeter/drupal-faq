@@ -2,11 +2,11 @@
 
 namespace Drupal\faq\Form;
 
-use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\ConfigFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
 
-class CategoriesForm extends FormBase {
+class CategoriesForm extends ConfigFormBase {
     
     public function getFormId() {
         return 'faq_categories_settings_form';
@@ -23,58 +23,58 @@ class CategoriesForm extends FormBase {
         
         $form['faq_use_categories'] = array(
             '#type' => 'checkbox',
-            '#title' => t('Categorize questions'),
-            '#description' => t('This allows the user to display the questions according to the categories configured on the add/edit FAQ page.  Use of sub-categories is only recommended for large lists of questions.  The Taxonomy module must be enabled.'),
+            '#title' => $this->t('Categorize questions'),
+            '#description' => $this->t('This allows the user to display the questions according to the categories configured on the add/edit FAQ page.  Use of sub-categories is only recommended for large lists of questions.  The Taxonomy module must be enabled.'),
             '#default_value' => $faq_settings->get('use_categories')
         );
 
         $category_options['none'] = t("Don't display");
-        $category_options['categories_inline'] = t('Categories inline');
-        $category_options['hide_qa'] = t('Clicking on category opens/hides questions and answers under category');
-        $category_options['new_page'] = t('Clicking on category opens the questions/answers in a new page');
+        $category_options['categories_inline'] = $this->t('Categories inline');
+        $category_options['hide_qa'] = $this->t('Clicking on category opens/hides questions and answers under category');
+        $category_options['new_page'] = $this->t('Clicking on category opens the questions/answers in a new page');
 
         $form['faq_category_display'] = array(
             '#type' => 'radios',
             '#options' => $category_options,
-            '#title' => t('Categories layout'),
-            '#description' => t('This controls how the categories are displayed on the page and what happens when someone clicks on the category.'),
+            '#title' => $this->t('Categories layout'),
+            '#description' => $this->t('This controls how the categories are displayed on the page and what happens when someone clicks on the category.'),
             '#default_value' => $faq_settings->get('category_display')
         );
 
         $form['faq_category_misc'] = array(
             '#type' => 'fieldset',
-            '#title' => t('Miscellaneous layout settings'),
+            '#title' => $this->t('Miscellaneous layout settings'),
             '#collapsible' => TRUE,
         );
 
         $form['faq_category_misc']['faq_category_listing'] = array(
             '#type' => 'select',
             '#options' => array(
-                'ol' => t('Ordered list'),
-                'ul' => t('Unordered list'),
+                'ol' => $this->t('Ordered list'),
+                'ul' => $this->t('Unordered list'),
             ),
-            '#title' => t('Categories listing style'),
+            '#title' => $this->t('Categories listing style'),
             '#description' => t("This allows to select how the categories listing is presented.  It only applies to the 'Clicking on category opens the questions/answers in a new page' layout.  An ordered listing would number the categories, whereas an unordered list will have a bullet to the left of each category."),
             '#default_value' => $faq_settings->get('category_listing')
         );
 
         $form['faq_category_misc']['faq_category_hide_qa_accordion'] = array(
             '#type' => 'checkbox',
-            '#title' => t('Use accordion effect for "opens/hides questions and answers under category" layout'),
-            '#description' => t('This enables an "accordion" style effect where when a category is clicked, the questions appears beneath, and is then hidden when another category is opened.'),
+            '#title' => $this->t('Use accordion effect for "opens/hides questions and answers under category" layout'),
+            '#description' => $this->t('This enables an "accordion" style effect where when a category is clicked, the questions appears beneath, and is then hidden when another category is opened.'),
             '#default_value' => $faq_settings->get('category_hide_qa_accordion')
         );
 
         $form['faq_category_misc']['faq_count'] = array(
             '#type' => 'checkbox',
-            '#title' => t('Show FAQ count'),
-            '#description' => t('This displays the number of questions in a category after the category name.'),
+            '#title' => $this->t('Show FAQ count'),
+            '#description' => $this->t('This displays the number of questions in a category after the category name.'),
             '#default_value' => $faq_settings->get('count')
         );
 
         $form['faq_category_misc']['faq_answer_category_name'] = array(
             '#type' => 'checkbox',
-            '#title' => t('Display category name for answers'),
+            '#title' => $this->t('Display category name for answers'),
             '#description' => t("This allows the user to toggle the visibility of the category name above each answer section for the 'Clicking on question takes user to answer further down the page' question/answer display."),
             '#default_value' => $faq_settings->get('answer_category_name')
         );
@@ -88,14 +88,14 @@ class CategoriesForm extends FormBase {
 
         $form['faq_category_misc']['faq_hide_child_terms'] = array(
             '#type' => 'checkbox',
-            '#title' => t('Only show sub-categories when parent category is selected'),
+            '#title' => $this->t('Only show sub-categories when parent category is selected'),
             '#description' => t("This allows the user more control over how and when sub-categories are displayed.  It does not affect the 'Categories inline' display."),
             '#default_value' => $faq_settings->get('hide_child_terms')
         );
 
         $form['faq_category_misc']['faq_show_term_page_children'] = array(
             '#type' => 'checkbox',
-            '#title' => t('Show sub-categories on FAQ category pages'),
+            '#title' => $this->t('Show sub-categories on FAQ category pages'),
             '#description' => t("Sub-categories with 'faq' nodes will be displayed on the per category FAQ page.  This will also happen if 'Only show sub-categories when parent category is selected' is set."),
             '#default_value' => $faq_settings->get('show_term_page_children')
         );
@@ -104,7 +104,7 @@ class CategoriesForm extends FormBase {
         if(true){
             $form['faq_category_advanced'] = array(
                 '#type' => 'fieldset',
-                '#title' => t('Advanced category settings'),
+                '#title' => $this->t('Advanced category settings'),
                 '#collapsible' => TRUE,
                 '#collapsed' => TRUE,
             );
@@ -116,8 +116,8 @@ class CategoriesForm extends FormBase {
             if (!empty($vocab_options)) {
                 $form['faq_category_advanced']['faq_omit_vocabulary'] = array(
                     '#type' => 'checkboxes',
-                    '#title' => t('Omit vocabulary'),
-                    '#description' => t('Terms from these vocabularies will be <em>excluded</em> from the FAQ pages.'),
+                    '#title' => $this->t('Omit vocabulary'),
+                    '#description' => $this->t('Terms from these vocabularies will be <em>excluded</em> from the FAQ pages.'),
                     '#default_value' => $faq_settings->get('omit_vocabulary'),
                     '#options' => $vocab_options,
                     '#multiple' => TRUE,
