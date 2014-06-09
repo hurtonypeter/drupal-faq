@@ -38,6 +38,16 @@ class FaqController extends ControllerBase{
     public function questionsSettings(){
         $build = array();
         
+        $build['#attached']['js'] = array(
+            array(
+                'data' => drupal_get_path('module', 'faq') . '/js/faq.js'
+            ),
+            array(
+                'data' => array('faq' => \Drupal::config('faq.settings')->getRawData()),
+                'type' => 'setting'
+            )
+        );
+        
         $build['faq_questions_settings_form'] = $this->formBuilder()->getForm('Drupal\faq\Form\QuestionsForm');
         
         return $build;
@@ -45,6 +55,16 @@ class FaqController extends ControllerBase{
     
     public function categoriesSettings(){
         $build = array();
+        
+        $build['#attached']['js'] = array(
+            array(
+                'data' => drupal_get_path('module', 'faq') . '/js/faq.js'
+            ),
+            array(
+                'data' => array('faq' => \Drupal::config('faq.settings')->getRawData()),
+                'type' => 'setting'
+            )
+        );
         
         if(!$this->moduleHandler()->moduleExists('taxonomy')){
             drupal_set_message(t('Categorization of questions will not work without the "taxonomy" module being enabled.'), 'error');
