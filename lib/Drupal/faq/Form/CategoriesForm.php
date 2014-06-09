@@ -42,9 +42,9 @@ class CategoriesForm extends ConfigFormBase {
         );
 
         $form['faq_category_misc'] = array(
-            '#type' => 'fieldset',
+            '#type' => 'details',
             '#title' => $this->t('Miscellaneous layout settings'),
-            '#collapsible' => TRUE,
+            '#open' => TRUE
         );
 
         $form['faq_category_misc']['faq_category_listing'] = array(
@@ -103,10 +103,9 @@ class CategoriesForm extends ConfigFormBase {
         // TODO: how to reach moduleHandler from FormBase
         if(true){
             $form['faq_category_advanced'] = array(
-                '#type' => 'fieldset',
+                '#type' => 'details',
                 '#title' => $this->t('Advanced category settings'),
-                '#collapsible' => TRUE,
-                '#collapsed' => TRUE,
+                '#open' => TRUE
             );
             $vocab_options = array();
             $vocabularies = Vocabulary::loadMultiple();

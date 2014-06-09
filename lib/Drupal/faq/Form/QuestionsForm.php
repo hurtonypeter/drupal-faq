@@ -28,9 +28,9 @@ class QuestionsForm extends ConfigFormBase {
         );
         
         $form['faq_questions_misc'] = array(
-            '#type' => 'fieldset',
+            '#type' => 'details',
             '#title' => $this->t('Miscellaneous layout settings'),
-            '#collapsible' => TRUE,
+            '#open' => TRUE
         );
         
         $form['faq_questions_misc']['faq_question_listing'] = array(
