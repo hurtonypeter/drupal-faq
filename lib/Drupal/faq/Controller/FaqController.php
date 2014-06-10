@@ -9,24 +9,232 @@
 namespace Drupal\faq\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Component\Utility\String;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class FaqController extends ControllerBase{
     
-    protected $config;
+    /*******************************************************
+     * FAQ PAGES
+     ******************************************************/
     
-    public function __construct() {
-        $this->config = \Drupal::config('faq.settings');
-    }
-    
-    public function faqPage(){
-        $set = \Drupal::config('faq.settings');
-        $build = array(
-            '#type' => 'markup',
-            '#markup' => t($set->get('title'))
+    /**
+     * Function to display the faq page.
+     * 
+     * @param int $tid
+     *   Default is 0, determines if the questions and answers on the page
+     *   will be shown according to a category or non-categorized.
+     * @param type $faq_display
+     *   Optional parameter to override default question layout setting.
+     * @param type $category_display
+     *   Optional parameter to override default category layout setting.
+     * @return
+     *   The output variable which contains an HTML formatted page with FAQ
+     *   questions and answers.
+     * @throws NotFoundHttpException
+     */
+    public function faqPage($tid = 0, $faq_display = '', $category_display = '') {
+        $faq_settings = \Drupal::config('faq.settings');
+        
+        $build = array();
+
+        $output = $output_answers = '';
+        $build['#attached']['css'] = array(
+            drupal_get_path('module', 'faq') . '/css/faq.css'
         );
+        if (arg(0) == 'faq-page') {
+            $build['#title'] = $faq_settings->get('title');
+        }
+        if (!$this->moduleHandler()->moduleExists('taxonomy')){
+            $tid = 0;
+        }
+        
+        // Configure the breadcrumb trail.
+        if (!empty($tid) && $current_term = Term::load($tid)) {
+            if (!\Drupal::service('path.alias_manager.cached')->getPathAlias(arg(0). '/' . $tid)
+                    && $this->moduleHandler()->moduleExists('pathauto')) {
+                // TODO: pathauto is not exists in D8 yet
+            }
+            // TODO: change to Drupal\Core\Path\PathMatcher::matchPath()
+            if (drupal_match_path($_GET['q'], 'faq-page/*')) {
+                $this->faq_set_breadcrumb($current_term);
+            }
+        }
+        
+        if (empty($faq_display)) {
+            $faq_display = $faq_settings->get('display');
+        }
+        $use_categories = $faq_settings->get('use_categories');
+        if (!empty($category_display)) {
+            $use_categories = TRUE;
+        }
+        else {
+            $category_display = $faq_settings->get('category_display');
+        }
+        if (!$this->moduleHandler()->moduleExists('taxonomy')) {
+            $use_categories = FALSE;
+        }
+        
+        $faq_path = drupal_get_path('module', 'faq') . '/includes';
+        
+        if (($use_categories && $category_display == 'hide_qa') || $faq_display == 'hide_answer') {
+            $build['#attached']['js'] = array(
+                array(
+                    'data' => drupal_get_path('module', 'faq') . '/js/faq.js'
+                ),
+                array(
+                    'data' => array(
+                        'hide_qa_accordion' => $faq_settings->get('hide_qa_accordion'),
+                        'category_hide_qa_accordion' => $faq_settings->get('category_hide_qa_accordion')
+                    ),
+                    'type' => 'setting'
+                )
+            );
+        }
+        
+        // Non-categorized questions and answers.
+        if (!$use_categories || ($category_display == 'none' && empty($tid))) {
+            if (!empty($tid)) {
+                throw new NotFoundHttpException();
+            }
+            $default_sorting = $faq_settings->get('default_sorting');
+            
+            $query = db_select('node', 'n');
+            $weight_alias = $query->leftJoin('faq_weights', 'w', '%alias.nid=n.nid');
+            $node_data = $query->leftJoin('node_field_data', 'd', 'd.nid=n.nid');
+            $query
+                ->addTag('node_access')
+                ->fields('n', array('nid'))
+                ->condition('n.type', 'faq')
+                ->condition('d.status', 1)
+                ->condition(db_or()->condition("$weight_alias.tid", 0)->isNull("$weight_alias.tid"));
+            
+            $default_weight = 0;
+            if ($default_sorting == 'ASC') {
+                $default_weight = 1000000;
+            }
+            // Works, but involves variable concatenation - safe though, since
+            // $default_weight is an integer.
+            $query->addExpression("COALESCE(w.weight, $default_weight)", 'effective_weight');
+            // Doesn't work in Postgres.
+            //$query->addExpression('COALESCE(w.weight, CAST(:default_weight as SIGNED))', 'effective_weight', array(':default_weight' => $default_weight));
+            // TODO: order by sticky
+            $query->orderBy('effective_weight', 'ASC')
+                ->orderBy('d.sticky', 'DESC');
+            if ($default_sorting == 'ASC') {
+                $query->orderBy('d.created', 'ASC');
+            }
+            else {
+                $query->orderBy('d.created', 'DESC');
+            }
+            
+            // Only need the nid column.
+            $nids = $query->execute()->fetchCol();
+            $data = Node::loadMultiple($nids);
+            // TODO: switch faq_display
+            switch ($faq_display) {
+                case 'questions_top':
+                    
+                    break;
+
+                case 'hide_answer':
+                    
+                    break;
+
+                case 'questions_inline':
+                    
+                    break;
+
+                case 'new_page':
+                    
+                    break;
+                
+            } // End of switch.
+        }
+        
+        // Categorize questions.
+        else {
+            $hide_child_terms = $faq_settings->get('hide_child_terms');
+            
+            // If we're viewing a specific category/term.
+            if (!empty($tid)) {
+                if ($term = Term::load($tid)) {
+                    $title = $faq_settings->get('title');
+                    if (arg(0) == 'faq-page' && is_numeric(arg(1))) {
+                        $build['#title'] = ($title . ($title ? ' - ' : '') . faq_tt("taxonomy:term:$term->tid:name", $term->name));
+                    }
+                    $this->display_faq_by_category($faq_display, $category_display, $term, 0, $output, $output_answers);
+                    //return theme('faq_page', array('content' => $output, 'answers' => $output_answers));
+                }
+                else {
+                    throw new NotFoundHttpException();
+                }
+            }
+            
+            $list_style = $faq_settings->get('category_listing');
+            $vocabularies = Vocabulary::loadMultiple();
+            $vocab_omit = $faq_settings->get('omit_vocabulary');
+            $items = array();
+            $vocab_items = array();
+            foreach ($vocabularies as $vid => $vobj) {
+                if (isset($vocab_omit[$vid]) && $vocab_omit[$vid] != 0) {
+                    continue;
+                }
+                
+                if ($category_display == "new_page") {
+                    $vocab_items = $this->get_indented_faq_terms($vid, 0);
+                    $items = array_merge($items, $vocab_items);
+                }
+                // Not a new page.
+                else {
+                    if ($hide_child_terms && $category_display == 'hide_qa') {
+                        $tree = taxonomy_get_tree($vid, 0, 1, TRUE);
+                    }
+                    else {
+                        $tree = taxonomy_get_tree($vid, 0, NULL, TRUE);
+                    }
+                    foreach ($tree as $term) {
+                        switch ($category_display) {
+                            case 'hide_qa':
+                            case 'categories_inline':
+                                if ($this->faq_taxonomy_term_count_nodes($term->tid)) {
+                                    $this->display_faq_by_category($faq_display, $category_display, $term, 1, $output, $output_answers);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+            
+            if ($category_display == "new_page") {
+                // TODO: theme
+                // $output = theme('item_list', array('items' => $items, 'title' => NULL, 'type' => $list_style));
+            }
+        }
+        
+        $faq_description = $faq_settings->get('description');
+        $format = $faq_settings->get('description_format');
+        if ($format) {
+            $faq_description = check_markup($faq_description, $format);
+        }
+        
+        // return theme('faq_page', array('content' => $output, 'answers' => $output_answers, 'description' => $faq_description));
+        /*$build = array(
+            '#type' => 'markup',
+            '#markup' => $this->t($faq_settings->get('title'))
+        );*/
         return $build;
     }
     
+    /**
+     * Renders the form for the FAQ Settings page - General tab.
+     *
+     * @return
+     *   The form code inside the $build array.
+     */
     public function generalSettings(){
         $build = array();
         
@@ -35,7 +243,15 @@ class FaqController extends ControllerBase{
         return $build;
     }
     
+    /**
+     * Renders the form for the FAQ Settings page - Questions tab.
+     *
+     * @return
+     *   The form code inside the $build array.
+     */
     public function questionsSettings(){
+        $faq_settings = \Drupal::config('faq.settings');
+        
         $build = array();
         
         $build['#attached']['js'] = array(
@@ -43,7 +259,10 @@ class FaqController extends ControllerBase{
                 'data' => drupal_get_path('module', 'faq') . '/js/faq.js'
             ),
             array(
-                'data' => array('faq' => \Drupal::config('faq.settings')->getRawData()),
+                'data' => array(
+                    'hide_qa_accordion' => $faq_settings->get('hide_qa_accordion'),
+                    'category_hide_qa_accordion' => $faq_settings->get('category_hide_qa_accordion')
+                ),
                 'type' => 'setting'
             )
         );
@@ -53,7 +272,15 @@ class FaqController extends ControllerBase{
         return $build;
     }
     
+    /**
+     * Renders the form for the FAQ Settings page - Categories tab.
+     *
+     * @return
+     *   The form code inside the $build array.
+     */
     public function categoriesSettings(){
+        $faq_settings = \Drupal::config('faq.settings');
+        
         $build = array();
         
         $build['#attached']['js'] = array(
@@ -61,7 +288,10 @@ class FaqController extends ControllerBase{
                 'data' => drupal_get_path('module', 'faq') . '/js/faq.js'
             ),
             array(
-                'data' => array('faq' => \Drupal::config('faq.settings')->getRawData()),
+                'data' => array(
+                    'hide_qa_accordion' => $faq_settings->get('hide_qa_accordion'),
+                    'category_hide_qa_accordion' => $faq_settings->get('category_hide_qa_accordion')
+                ),
                 'type' => 'setting'
             )
         );
@@ -73,5 +303,273 @@ class FaqController extends ControllerBase{
         $build['faq_categories_settings_form'] = $this->formBuilder()->getForm('Drupal\faq\Form\CategoriesForm');
         
         return $build;
+    }
+    
+    /******************************************************************
+     * PRIVATE HELPER FUCTIONS
+     *****************************************************************/
+    
+    /**
+     * Function to set up the FAQ breadcrumbs for a given taxonomy term.
+     *
+     * @param $term
+     *   The taxonomy term object.
+     */
+    private function faq_set_breadcrumb($term = NULL) {
+        $faq_settings = \Drupal::config('faq.settings');
+        
+        $breadcrumb = array();
+        if ($faq_settings->get('custom_breadcrumbs')) {
+            if ($this->moduleHandler()->moduleExists('taxonomy') && $term) {
+                $breadcrumb[] = l($this->faq_tt("taxonomy:term:$term->tid:name", $term->name), 'faq-page/' . $term->tid);
+                while ($parents = taxonomy_term_load_parents($term->tid)) {
+                    $term = array_shift($parents);
+                    $breadcrumb[] = l($this->faq_tt("taxonomy:term:$term->tid:name", $term->name), 'faq-page/' . $term->tid);
+                }
+            }
+            $breadcrumb[] = l($faq_settings->get('title'), 'faq-page');
+            $breadcrumb[] = l(t('Home'), NULL, array('attributes' => array('title' => variable_get('site_name', ''))));
+            $breadcrumb = array_reverse($breadcrumb);
+            return \Drupal\Core\Breadcrumb\BreadcrumbManager::build($breadcrumb);
+        }
+        // This is also used to set the breadcrumbs in the faq_preprocess_page()
+        // so we need to return a valid trail.
+        return \Drupal\Core\Breadcrumb\BreadcrumbManager::build($breadcrumb);
+    }
+    
+    /**
+     * Helper function for when i18ntaxonomy module is not installed.
+     */
+    private function faq_tt($string_id, $default, $language = NULL) {
+        return function_exists('tt') ? tt($string_id, $default, $language) : $default;
+    }
+    
+    /**
+     * Display FAQ questions and answers filtered by category.
+     *
+     * @param $faq_display
+     *   Define the way the FAQ is being shown; can have the values:
+     *   'questions top',hide answers','questions inline','new page'.
+     * @param $category_display
+     *   The layout of categories which should be used.
+     * @param $term
+     *   The category / term to display FAQs for.
+     * @param $display_header
+     *   Set if the header will be shown or not.
+     * @param &$output
+     *   Reference which holds the content of the page, HTML formatted.
+     * @param &$output_answer
+     *   Reference which holds the answers from the FAQ, when showing questions
+     *   on top.
+     */
+    private function display_faq_by_category($faq_display, $category_display, $term, $display_header, &$output, &$output_answers) {
+        $default_sorting = \Drupal::config('faq.settings')->get('default_sorting');
+        
+        $query = db_select('node', 'n');
+        $query->join('node_field_data', 'd', 'n.nid = d.nid');
+        $ti_alias = $query->innerJoin('taxonomy_index', 'ti', '(n.nid = %alias.nid');
+        $query->leftJoin('faq_weights', 'w', "%alias.tid = [$ti_alias].tid AND n.nid = %alias.nid");
+        $query->fields('n', array('nid'))
+              ->condition('n.type', 'faq')
+              ->condition('d.status', 1)
+              ->condition("{$ti_alias}.tid", $term->tid)
+              ->addTag('node_access');
+        
+        $default_weight = 0;
+        if ($default_sorting == 'ASC') {
+            $default_weight = 1000000;
+        }
+        // Works, but involves variable concatenation - safe though, since
+        // $default_weight is an integer.
+        $query->addExpression("COALESCE(w.weight, $default_weight)", 'effective_weight');
+        // Doesn't work in Postgres.
+        //$query->addExpression('COALESCE(w.weight, CAST(:default_weight as SIGNED))', 'effective_weight', array(':default_weight' => $default_weight));
+        $query->orderBy('effective_weight', 'ASC')
+              ->orderBy('d.sticky', 'DESC');
+        if ($default_sorting == 'ASC') {
+            $query->orderBy('d.created', 'ASC');
+        }
+        else {
+            $query->orderBy('d.created', 'DESC');
+        }
+        
+        // We only want the first column, which is nid, so that we can load all
+        // related nodes.
+        $nids = $query->execute()->fetchCol();
+        $data = Node::loadMultiple($nids);
+        
+        // Handle indenting of categories.
+        $depth = 0;
+        if (!isset($term->depth)) {
+            $term->depth = 0;
+        }
+        while ($depth < $term->depth) {
+            $display_header = 1;
+            $indent = '<div class="faq-category-indent">';
+            $output .= $indent;
+            $depth++;
+        }
+        
+        // Set up the class name for hiding the q/a for a category if required.
+        $faq_class = "faq-qa";
+        if ($category_display == "hide_qa") {
+            $faq_class = "faq-qa-hide";
+        }
+
+        $faq_path = drupal_get_path('module', 'faq') . '/includes';
+        
+        // TODO: implement theme()
+        switch ($faq_display) {
+            case 'questions_top':
+                //$output .= theme('faq_category_questions_top', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+                //$output_answers .= theme('faq_category_questions_top_answers', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+                break;
+            
+            case 'hide_answer':
+                //$output .= theme('faq_category_hide_answer', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+                break;
+
+            case 'questions_inline':
+                //$output .= theme('faq_category_questions_inline', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+                break;
+
+            case 'new_page':
+                //$output .= theme('faq_category_new_page', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+                break;
+        }
+        // Handle indenting of categories.
+        while ($depth > 0) {
+            $output .= '</div>';
+            $depth--;
+        }
+  
+    }
+
+    /**
+     * Return a HTML formatted list of terms indented according to the term depth.
+     *
+     * @param $vid
+     *   Vocabulary id.
+     * @param $tid
+     *   Term id.
+     * @return
+     *   Return a HTML formatted list of terms indented according to the term depth.
+     */
+    private function get_indented_faq_terms($vid, $tid) {
+        if($this->moduleHandler()->moduleExists('pathauto')) {
+            // pathauto does't exists in D8 yet
+        }
+        
+        $faq_settings = \Drupal::config('faq.settings');
+        
+        $display_faq_count = $faq_settings->get('count');
+        $hide_child_terms = $faq_settings->get('hide_child_terms');
+        
+        $items = array();
+        $tree = taxonomy_get_tree($vid, $tid, 1, TRUE);
+        
+        foreach ($tree as $term) {
+            $tree_count = $this->faq_taxonomy_term_count_nodes($term->tid);
+            
+            if ($tree_count) {
+                // Get term description.
+                $desc = '';
+                if (!empty($term->description)) {
+                    $desc = '<div class="faq-qa-description">';
+                    $desc .= check_markup($this->faq_tt("taxonomy:term:$term->tid:description", $term->description)) . "</div>";
+                }
+                
+                $query = db_select('node', 'n');
+                $query->join('node_field_data', 'd', 'n.nid = d.nid');
+                $ti_alias = $query->innerJoin('taxonomy_index', 'ti', '(n.nid = %alias.nid)');
+                $term_node_count = $query->condition('d.status', 1)
+                    ->condition('n.type', 'faq')
+                    ->condition("{$ti_alias}.tid", $term->tid)
+                    ->addTag('node_access')
+                    ->countQuery()
+                    ->execute()
+                    ->fetchField();
+                    
+                if ($term_node_count > 0) {
+                    $path = "faq-page/$term->tid";
+                    
+                    if (!\Drupal::service('path.alias_manager.cached')->getPathAlias(arg(0). '/' . $tid)
+                            && $this->moduleHandler()->moduleExists('pathauto')) {
+                        // TODO: pathauto is not exists in D8 yet
+                    }
+                    
+                    if ($display_faq_count) {
+                        $count = $term_node_count;
+                        if ($hide_child_terms) {
+                            $count = $tree_count;
+                        }
+                        $cur_item = l(faq_tt("taxonomy:term:$term->tid:name", $term->name), $path) . " ($count) " . $desc;
+                    }
+                    else {
+                        $cur_item = l(faq_tt("taxonomy:term:$term->tid:name", $term->name), $path) . $desc;
+                    }
+                }
+                else {
+                    $cur_item = String::checkPlain(faq_tt("taxonomy:term:$term->tid:name", $term->name)) . $desc;
+                }
+                if (!empty($term_image)) {
+                    $cur_item .= '<div class="clear-block"></div>';
+                }
+                
+                $term_items = array();
+                if (!$hide_child_terms) {
+                    $term_items = $this->get_indented_faq_terms($vid, $term->tid);
+                }
+                $items[] = array(
+                    "data" => $cur_item,
+                    "children" => $term_items,
+                );
+            }
+        }
+        
+        return $items;
+    }
+
+    /**
+     * Count number of nodes for a term and its children.
+     */
+    private function faq_taxonomy_term_count_nodes($tid) {
+        static $count;
+        
+        if (!isset($count) || !isset($cound[$tid])) {
+            $query = db_select('node', 'n')
+                    ->fields('n', array('nid'))
+                    ->addTag('node_access');
+            $query->join('taxonomy_index', 'ti', 'n.nid = ti.nid');
+            $query->join('node_field_data', 'd', 'd.nid = n.nid');
+            $query->condition('n.type', 'faq')
+                  ->condition('d.status', 1)
+                  ->condition('ti.tid', $tid);
+        }
+        
+        $children_count = 0;
+        foreach ($this->faq_taxonomy_term_children($tid) as $child_term){
+            $children_count += $this->faq_taxonomy_term_count_nodes($child_term);
+        }
+        
+        return $cound[$tid] + $children_count;
+    }
+    
+    /**
+     * Helper function to faq_taxonomy_term_count_nodes() to return list of child terms.
+     */
+    private function faq_taxonomy_term_children($tid) {
+        static $children;
+
+        if (!isset($children)) {
+            $result = db_select('taxonomy_term_hierarchy', 'tth')
+                ->fields('tth', array('parent', 'tid'))
+                ->execute();
+            while ($term = $result->fetch()) {
+                $children[$term->parent][] = $term->tid;
+            }
+        }
+        
+        return isset($children[$tid]) ? $children[$tid] : array();
     }
 }
