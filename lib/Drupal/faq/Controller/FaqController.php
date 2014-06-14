@@ -13,6 +13,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\Component\Utility\String;
+use Drupal\faq\FaqHelper;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class FaqController extends ControllerBase{
@@ -200,7 +201,7 @@ class FaqController extends ControllerBase{
                         switch ($category_display) {
                             case 'hide_qa':
                             case 'categories_inline':
-                                if ($this->faq_taxonomy_term_count_nodes($term->tid)) {
+                                if (FaqHelper::faq_taxonomy_term_count_nodes($term->tid)) {
                                     $this->display_faq_by_category($faq_display, $category_display, $term, 1, $output, $output_answers);
                                 }
                                 break;
@@ -226,6 +227,22 @@ class FaqController extends ControllerBase{
             '#type' => 'markup',
             '#markup' => $this->t($faq_settings->get('title'))
         );*/
+        return $build;
+    }
+    
+    /**
+    * Define the elements for the FAQ Settings page - order tab.
+    *
+    * @param $form_state
+    *   Store the submitted form values.
+    * @return
+    *   The form code, before being converted to HTML format.
+    */
+    public function orderPage(){
+        $build = array();
+        
+        $build['faq_order'] = $this->formBuilder()->getForm('Drupal\faq\Form\OrderForm');
+        
         return $build;
     }
     
@@ -321,10 +338,10 @@ class FaqController extends ControllerBase{
         $breadcrumb = array();
         if ($faq_settings->get('custom_breadcrumbs')) {
             if ($this->moduleHandler()->moduleExists('taxonomy') && $term) {
-                $breadcrumb[] = l($this->faq_tt("taxonomy:term:$term->tid:name", $term->name), 'faq-page/' . $term->tid);
+                $breadcrumb[] = l(FaqHelper::faq_tt("taxonomy:term:$term->tid:name", $term->name), 'faq-page/' . $term->tid);
                 while ($parents = taxonomy_term_load_parents($term->tid)) {
                     $term = array_shift($parents);
-                    $breadcrumb[] = l($this->faq_tt("taxonomy:term:$term->tid:name", $term->name), 'faq-page/' . $term->tid);
+                    $breadcrumb[] = l(FaqHelper::faq_tt("taxonomy:term:$term->tid:name", $term->name), 'faq-page/' . $term->tid);
                 }
             }
             $breadcrumb[] = l($faq_settings->get('title'), 'faq-page');
@@ -335,13 +352,6 @@ class FaqController extends ControllerBase{
         // This is also used to set the breadcrumbs in the faq_preprocess_page()
         // so we need to return a valid trail.
         return \Drupal\Core\Breadcrumb\BreadcrumbManager::build($breadcrumb);
-    }
-    
-    /**
-     * Helper function for when i18ntaxonomy module is not installed.
-     */
-    private function faq_tt($string_id, $default, $language = NULL) {
-        return function_exists('tt') ? tt($string_id, $default, $language) : $default;
     }
     
     /**
@@ -469,14 +479,14 @@ class FaqController extends ControllerBase{
         $tree = taxonomy_get_tree($vid, $tid, 1, TRUE);
         
         foreach ($tree as $term) {
-            $tree_count = $this->faq_taxonomy_term_count_nodes($term->tid);
+            $tree_count = FaqHelper::faq_taxonomy_term_count_nodes($term->tid);
             
             if ($tree_count) {
                 // Get term description.
                 $desc = '';
                 if (!empty($term->description)) {
                     $desc = '<div class="faq-qa-description">';
-                    $desc .= check_markup($this->faq_tt("taxonomy:term:$term->tid:description", $term->description)) . "</div>";
+                    $desc .= check_markup(FaqHelper::faq_tt("taxonomy:term:$term->tid:description", $term->description)) . "</div>";
                 }
                 
                 $query = db_select('node', 'n');
@@ -528,31 +538,6 @@ class FaqController extends ControllerBase{
         }
         
         return $items;
-    }
-
-    /**
-     * Count number of nodes for a term and its children.
-     */
-    private function faq_taxonomy_term_count_nodes($tid) {
-        static $count;
-        
-        if (!isset($count) || !isset($cound[$tid])) {
-            $query = db_select('node', 'n')
-                    ->fields('n', array('nid'))
-                    ->addTag('node_access');
-            $query->join('taxonomy_index', 'ti', 'n.nid = ti.nid');
-            $query->join('node_field_data', 'd', 'd.nid = n.nid');
-            $query->condition('n.type', 'faq')
-                  ->condition('d.status', 1)
-                  ->condition('ti.tid', $tid);
-        }
-        
-        $children_count = 0;
-        foreach ($this->faq_taxonomy_term_children($tid) as $child_term){
-            $children_count += $this->faq_taxonomy_term_count_nodes($child_term);
-        }
-        
-        return $cound[$tid] + $children_count;
     }
     
     /**
