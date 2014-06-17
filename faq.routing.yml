@@ -6,22 +6,24 @@ faq.faq-page:
     requirements:
         _permission: 'view faq page'
 
-faq.faq-page.list:
-    path: '/faq-page/list'
-    defaults:
-        _title: 'List'
-    requirements:
-        _permission: 'view faq page'
-
 faq.faq-page.order:
     path: '/faq-page/order'
     defaults:
         _title: 'Order'
+        _content: 'Drupal\faq\Controller\FaqController::orderPage'
     requirements:
         _permission: 'view faq page'
 
 faq.faq-admin:
     path: '/admin/config/content/faq'
+    defaults:
+        _title: 'General'
+        _content: 'Drupal\faq\Controller\FaqController::generalSettings'
+    requirements:
+        _permission: 'administer faq'
+
+faq.faq-admin.general:
+    path: '/admin/config/content/faq/general'
     defaults:
         _title: 'General'
         _content: 'Drupal\faq\Controller\FaqController::generalSettings'
