@@ -239,7 +239,24 @@ class FaqController extends ControllerBase{
     *   The form code, before being converted to HTML format.
     */
     public function orderPage(){
+        $faq_settings = \Drupal::config('faq.settings');
         $build = array();
+        
+        $build['#attached']['js'] = array(
+            array(
+                'data' => drupal_get_path('module', 'faq') . '/js/faq.js'
+            ),
+            array(
+                'data' => array(
+                    'hide_qa_accordion' => $faq_settings->get('hide_qa_accordion'),
+                    'category_hide_qa_accordion' => $faq_settings->get('category_hide_qa_accordion')
+                ),
+                'type' => 'setting'
+            )
+        );
+        $build['#attached']['css'] = array(
+            drupal_get_path('module', 'faq') . '/css/faq.css'
+        );
         
         $build['faq_order'] = $this->formBuilder()->getForm('Drupal\faq\Form\OrderForm');
         
