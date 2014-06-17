@@ -136,22 +136,22 @@ class FaqController extends ControllerBase{
             // Only need the nid column.
             $nids = $query->execute()->fetchCol();
             $data = Node::loadMultiple($nids);
-            // TODO: switch faq_display
+            // TODO: switch faq_display: change theme() calls
             switch ($faq_display) {
                 case 'questions_top':
-                    
+                    //$output = theme('faq_questions_top', array('data' => $data));
                     break;
 
                 case 'hide_answer':
-                    
+                    //$output = theme('faq_hide_answer', array('data' => $data));
                     break;
 
                 case 'questions_inline':
-                    
+                    //$output = theme('faq_questions_inline', array('data' => $data));
                     break;
 
                 case 'new_page':
-                    
+                    //$output = theme('faq_new_page', array('data' => $data));
                     break;
                 
             } // End of switch.
@@ -212,7 +212,7 @@ class FaqController extends ControllerBase{
             }
             
             if ($category_display == "new_page") {
-                // TODO: theme
+                // TODO: theme()
                 // $output = theme('item_list', array('items' => $items, 'title' => NULL, 'type' => $list_style));
             }
         }
@@ -559,21 +559,5 @@ class FaqController extends ControllerBase{
         return $items;
     }
     
-    /**
-     * Helper function to faq_taxonomy_term_count_nodes() to return list of child terms.
-     */
-    private function faq_taxonomy_term_children($tid) {
-        static $children;
-
-        if (!isset($children)) {
-            $result = db_select('taxonomy_term_hierarchy', 'tth')
-                ->fields('tth', array('parent', 'tid'))
-                ->execute();
-            while ($term = $result->fetch()) {
-                $children[$term->parent][] = $term->tid;
-            }
-        }
-        
-        return isset($children[$tid]) ? $children[$tid] : array();
-    }
+    
 }

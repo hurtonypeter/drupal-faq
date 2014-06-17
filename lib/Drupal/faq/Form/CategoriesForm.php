@@ -8,8 +8,8 @@
 namespace Drupal\faq\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\Core\Extension\ModuleHandler;
 
 /**
  * Form for the FAQ settings page - categories tab.
@@ -114,8 +114,8 @@ class CategoriesForm extends ConfigFormBase {
             '#default_value' => $faq_settings->get('show_term_page_children')
         );
         
-        // TODO: how to reach moduleHandler from FormBase
-        if(true){
+        $moduleHandler = new ModuleHandler;
+        if($moduleHandler->moduleExists('taxonomy')){
             $form['faq_category_advanced'] = array(
                 '#type' => 'details',
                 '#title' => $this->t('Advanced category settings'),
