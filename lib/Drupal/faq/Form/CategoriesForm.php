@@ -1,17 +1,31 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\faq\Form\CategoriesForm.
+ */
+
 namespace Drupal\faq\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
 
+/**
+ * Form for the FAQ settings page - categories tab.
+ */
 class CategoriesForm extends ConfigFormBase {
     
+    /**
+     * {@inheritdoc}
+     */
     public function getFormId() {
         return 'faq_categories_settings_form';
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(array $form, array &$form_state) {
         $faq_settings = $this->config('faq.settings');
         
@@ -105,7 +119,7 @@ class CategoriesForm extends ConfigFormBase {
             $form['faq_category_advanced'] = array(
                 '#type' => 'details',
                 '#title' => $this->t('Advanced category settings'),
-                '#open' => TRUE
+                '#open' => FALSE
             );
             $vocab_options = array();
             $vocabularies = Vocabulary::loadMultiple();
@@ -127,6 +141,9 @@ class CategoriesForm extends ConfigFormBase {
         return parent::buildForm($form, $form_state);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function submitForm(array &$form, array &$form_state) {
         // Remove unnecessary values.
         form_state_values_clean($form_state);

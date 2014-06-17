@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\faq\Form\OrderForm.
+ */
+
 namespace Drupal\faq\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
@@ -7,12 +12,21 @@ use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\faq\FaqHelper;
 use Drupal\Component\Utility\String;
 
+/**
+ * Form for reordering the FAQ-s.
+ */
 class OrderForm extends ConfigFormBase {
     
+    /**
+     * {@inheritdoc}
+     */
     public function getFormId() {
         return 'faq_order_form';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(array $form, array &$form_state, $category = NULL) {
         
         $order = $date_order = '';
@@ -134,6 +148,9 @@ class OrderForm extends ConfigFormBase {
         return parent::buildForm($form, $form_state);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function submitForm(array &$form, array &$form_state) {
         
     }

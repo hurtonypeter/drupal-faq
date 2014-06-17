@@ -1,16 +1,30 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\faq\Form\QuestionsForm.
+ */
+
 namespace Drupal\faq\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Form for the FAQ settings page - questions tab.
+ */
 class QuestionsForm extends ConfigFormBase {
     
+    /**
+     * {@inheritdoc}
+     */
     public function getFormId() {
         return 'faq_questions_settings_form';
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(array $form, array &$form_state) {
         $faq_settings = $this->config('faq.settings');
         
@@ -139,6 +153,9 @@ class QuestionsForm extends ConfigFormBase {
         return parent::buildForm($form, $form_state);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function submitForm(array &$form, array &$form_state) {
         // Remove unnecessary values.
         form_state_values_clean($form_state);
