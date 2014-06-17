@@ -45,7 +45,7 @@ class OrderForm extends ConfigFormBase {
                     if (!FaqHelper::faq_taxonomy_term_count_nodes($term->tid)) {
                         continue;
                     }
-                    $options[$term->tid] = FaqHelper::faq_tt("taxonomy:term:$term->tid:name", $term->name);
+                    $options[$term->tid] = $this->t($term->name);
                     $form['choose_cat']['faq_category'] = array(
                         '#type' => 'select',
                         '#title' => t('Choose a category'),

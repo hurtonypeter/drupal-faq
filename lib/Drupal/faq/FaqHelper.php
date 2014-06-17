@@ -1,21 +1,24 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\user\FaqHeler.
+ */
+
 namespace Drupal\faq;
 
 /**
- * Contains static functions for FAQ module.
+ * Contains static helper functions for FAQ module.
  */
 class FaqHelper{
     
     /**
-     * Helper function for when i18ntaxonomy module is not installed.
-     */
-    public static function faq_tt($string_id, $default, $language = NULL){
-        return function_exists('tt') ? tt($string_id, $default, $language) : $default;
-    }
-    
-    /**
      * Count number of nodes for a term and its children.
+     * 
+     * @param int $tid
+     *   Id of the tadonomy term to count nodes in.
+     * @return int
+     *   Returns the count of the nodes in the given term.
      */
     public static function faq_taxonomy_term_count_nodes($tid) {
         static $count;

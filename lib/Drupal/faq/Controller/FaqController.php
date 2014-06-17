@@ -1,9 +1,8 @@
 <?php
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * @file
+ * Contains \Drupal\faq\Controller\FaqController.
  */
 
 namespace Drupal\faq\Controller;
@@ -16,6 +15,9 @@ use Drupal\Component\Utility\String;
 use Drupal\faq\FaqHelper;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Controller routines for FAQ routes.
+ */
 class FaqController extends ControllerBase{
     
     /*******************************************************
@@ -28,13 +30,12 @@ class FaqController extends ControllerBase{
      * @param int $tid
      *   Default is 0, determines if the questions and answers on the page
      *   will be shown according to a category or non-categorized.
-     * @param type $faq_display
+     * @param string $faq_display
      *   Optional parameter to override default question layout setting.
-     * @param type $category_display
+     * @param string $category_display
      *   Optional parameter to override default category layout setting.
      * @return
-     *   The output variable which contains an HTML formatted page with FAQ
-     *   questions and answers.
+     *   The page with FAQ questions and answers.
      * @throws NotFoundHttpException
      */
     public function faqPage($tid = 0, $faq_display = '', $category_display = '') {
@@ -165,7 +166,7 @@ class FaqController extends ControllerBase{
                 if ($term = Term::load($tid)) {
                     $title = $faq_settings->get('title');
                     if (arg(0) == 'faq-page' && is_numeric(arg(1))) {
-                        $build['#title'] = ($title . ($title ? ' - ' : '') . faq_tt("taxonomy:term:$term->tid:name", $term->name));
+                        $build['#title'] = ($title . ($title ? ' - ' : '') . $this->t($term->name));
                     }
                     $this->display_faq_by_category($faq_display, $category_display, $term, 0, $output, $output_answers);
                     //return theme('faq_page', array('content' => $output, 'answers' => $output_answers));
@@ -233,12 +234,12 @@ class FaqController extends ControllerBase{
     /**
     * Define the elements for the FAQ Settings page - order tab.
     *
-    * @param $form_state
-    *   Store the submitted form values.
+    * @param $category
+    *   The category id of the FAQ page to reorder.
     * @return
     *   The form code, before being converted to HTML format.
     */
-    public function orderPage(){
+    public function orderPage($category = NULL){
         $faq_settings = \Drupal::config('faq.settings');
         $build = array();
         
@@ -258,6 +259,7 @@ class FaqController extends ControllerBase{
             drupal_get_path('module', 'faq') . '/css/faq.css'
         );
         
+        // TODO: pass the category id to the form
         $build['faq_order'] = $this->formBuilder()->getForm('Drupal\faq\Form\OrderForm');
         
         return $build;
@@ -355,10 +357,10 @@ class FaqController extends ControllerBase{
         $breadcrumb = array();
         if ($faq_settings->get('custom_breadcrumbs')) {
             if ($this->moduleHandler()->moduleExists('taxonomy') && $term) {
-                $breadcrumb[] = l(FaqHelper::faq_tt("taxonomy:term:$term->tid:name", $term->name), 'faq-page/' . $term->tid);
+                $breadcrumb[] = l($this->t($term->name), 'faq-page/' . $term->tid);
                 while ($parents = taxonomy_term_load_parents($term->tid)) {
                     $term = array_shift($parents);
-                    $breadcrumb[] = l(FaqHelper::faq_tt("taxonomy:term:$term->tid:name", $term->name), 'faq-page/' . $term->tid);
+                    $breadcrumb[] = l($this->t($term->name), 'faq-page/' . $term->tid);
                 }
             }
             $breadcrumb[] = l($faq_settings->get('title'), 'faq-page');
@@ -503,7 +505,7 @@ class FaqController extends ControllerBase{
                 $desc = '';
                 if (!empty($term->description)) {
                     $desc = '<div class="faq-qa-description">';
-                    $desc .= check_markup(FaqHelper::faq_tt("taxonomy:term:$term->tid:description", $term->description)) . "</div>";
+                    $desc .= check_markup($this->t($term->description)) . "</div>";
                 }
                 
                 $query = db_select('node', 'n');
@@ -530,14 +532,14 @@ class FaqController extends ControllerBase{
                         if ($hide_child_terms) {
                             $count = $tree_count;
                         }
-                        $cur_item = l(faq_tt("taxonomy:term:$term->tid:name", $term->name), $path) . " ($count) " . $desc;
+                        $cur_item = l($this->t($term->name), $path) . " ($count) " . $desc;
                     }
                     else {
-                        $cur_item = l(faq_tt("taxonomy:term:$term->tid:name", $term->name), $path) . $desc;
+                        $cur_item = l($this->t($term->name), $path) . $desc;
                     }
                 }
                 else {
-                    $cur_item = String::checkPlain(faq_tt("taxonomy:term:$term->tid:name", $term->name)) . $desc;
+                    $cur_item = String::checkPlain($this->t($term->name)) . $desc;
                 }
                 if (!empty($term_image)) {
                     $cur_item .= '<div class="clear-block"></div>';
