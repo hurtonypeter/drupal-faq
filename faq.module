@@ -32,3 +32,95 @@ function faq_permission(){
     
     return $permissions;
 }
+
+/**
+ * Implements hook_theme().
+ */
+function faq_theme() {
+    $path = drupal_get_path('module', 'faq') . '/includes';
+    return array(
+    'faq_draggable_question_order_table' => array(
+      'render element' => 'form',
+    ),
+    'faq_questions_top' => array(
+      'path' => $path,
+      'file' => 'faq.questions_top.inc',
+      'template' => 'faq-questions-top',
+      'variables' => array('data' => NULL),
+    ),
+    'faq_category_questions_top' => array(
+      'path' => $path,
+      'file' => 'faq.questions_top.inc',
+      'template' => 'faq-category-questions-top',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_category_questions_top_answers' => array(
+      'path' => $path,
+      'file' => 'faq.questions_top.inc',
+      'template' => 'faq-category-questions-top-answers',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_hide_answer' => array(
+      'path' => $path,
+      'file' => 'faq.hide_answer.inc',
+      'template' => 'faq-hide-answer',
+      'variables' => array('data' => NULL),
+    ),
+    'faq_category_hide_answer' => array(
+      'path' => $path,
+      'file' => 'faq.hide_answer.inc',
+      'template' => 'faq-category-hide-answer',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_questions_inline' => array(
+      'path' => $path,
+      'file' => 'faq.questions_inline.inc',
+      'template' => 'faq-questions-inline',
+      'variables' => array('data' => NULL),
+    ),
+    'faq_category_questions_inline' => array(
+      'path' => $path,
+      'file' => 'faq.questions_inline.inc',
+      'template' => 'faq-category-questions-inline',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_new_page' => array(
+      'path' => $path,
+      'file' => 'faq.new_page.inc',
+      'template' => 'faq-new-page',
+      'variables' => array('data' => NULL),
+    ),
+    'faq_category_new_page' => array(
+      'path' => $path,
+      'file' => 'faq.new_page.inc',
+      'template' => 'faq-category-new-page',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_page' => array(
+      'variables' => array('content' => '', 'answers' => '', 'description' => NULL),
+    ),
+  );
+}
+
+/**
+ * Theme function for question ordering drag and drop table.
+ */
+function template_preprocess_faq_draggable_question_order_table(&$variables){
+    $form = $variables['form'];
+    $table = array(
+        '#type' => 'table',
+        '#header' => array('asd', 'pasd', 'dasd'),
+        '#rows' => array(array(1,2,3)),
+        '#attributes' => array(
+            'id' => 'my-module-table',
+        ),
+    );
+    return drupal_render($table);
+}
+
+/**
+ * Theme function for faq page wrapper divs.
+ */
+function template_preprocess_faq_page(&$variables) {
+    
+}
