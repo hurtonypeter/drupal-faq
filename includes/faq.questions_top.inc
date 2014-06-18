@@ -5,8 +5,8 @@
  * FAQ page callbacks for the "questions top" layouts.
  */
 
-use \Drupal\user\FaqHelper;
-use \Drupal\Component\Utility\String;
+use Drupal\faq\FaqHelper;
+use Drupal\Component\Utility\String;
 
 /**
  * Create the structure of the page, when the questions are to be shown on top.
@@ -35,7 +35,7 @@ function template_preprocess_faq_questions_top(&$variables) {
 
   // Configure "back to top" link.
   $this_page = $_GET['q'];
-  $back_to_top = faq_init_back_to_top($this_page);
+  $back_to_top = FaqHelper::faq_init_back_to_top($this_page);
 
   // Loop through results.
   $questions = array();
@@ -44,9 +44,8 @@ function template_preprocess_faq_questions_top(&$variables) {
   foreach ($data as $node) {
     $anchor = 'n' . $node->nid;
     $questions[$key] = l($node->title, $this_page, array('fragment' => $anchor));
-    //TODO: port these functions
-    faq_view_question($answers[$key], $node, NULL, $anchor);
-    faq_view_answer($answers[$key], $node, $back_to_top, $teaser, $links);
+    FaqHelper::faq_view_question($answers[$key], $node, NULL, $anchor);
+    FaqHelper::faq_view_answer($answers[$key], $node, $back_to_top, $teaser, $links);
     $key++;
   }
   $variables['limit'] = $key;
@@ -56,8 +55,8 @@ function template_preprocess_faq_questions_top(&$variables) {
   $variables['use_teaser'] = $teaser;
   $variables['questions'] = $questions;
   $variables['answers'] = $answers;
-  //TODO: chage theme
-  $variables['questions_list'] = theme('item_list', array('items' => $questions, 'title' => NULL, 'type' => $list_style, 'attributes' => array("class" => "faq-ul-questions-top")));
+  //TODO: chage theme()
+  //$variables['questions_list'] = theme('item_list', array('items' => $questions, 'title' => NULL, 'type' => $list_style, 'attributes' => array("class" => "faq-ul-questions-top")));
 }
 
 /**
@@ -136,11 +135,11 @@ function template_preprocess_faq_category_questions_top(&$variables) {
 
   // Configure header.
   $variables['category_depth'] = $term->depth;
-  $variables['category_name'] = String::checkPlain(t($term->name));
+  $variables['category_name'] = String::checkPlain($term->name);
   if ($category_display == 'hide_qa') {
-    $variables['header_title'] = l(t($term->name), "faq/$term->tid");
+    $variables['header_title'] = l($term->name, "faq/$term->tid");
   } else {
-    $variables['header_title'] = String::checkPlain(t($term->name));
+    $variables['header_title'] = String::checkPlain($term->name);
   }
 
   // Configure category description.
