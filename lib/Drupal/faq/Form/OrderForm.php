@@ -129,7 +129,7 @@ class OrderForm extends ConfigFormBase {
 
       // Show table ordering form.
       $form['order_no_cats']['#tree'] = TRUE;
-      $form['#theme'] = 'faq-draggable-question-order-table';
+      $form['order_no_cats']['#theme'] = 'faq_draggable_question_order_table';
 
       foreach ($options as $i => $record) {
         $form['order_no_cats'][$i]['nid'] = array(
@@ -144,14 +144,14 @@ class OrderForm extends ConfigFormBase {
         );
       }
     }
-
+    
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = array(
       '#type' => 'submit',
       '#value' => $this->t('Save order'),
       '#button_type' => 'primary',
     );
-
+    
     return $form;
   }
 

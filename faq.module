@@ -6,6 +6,8 @@
  * displayed in different styles, according to the settings.
  */
 
+use Drupal\Core\Render\Element;
+
 /**
  * Implements hook_permission().
  */
@@ -40,6 +42,7 @@ function faq_theme() {
     $path = drupal_get_path('module', 'faq') . '/includes';
     return array(
     'faq_draggable_question_order_table' => array(
+      'template' => 'faq-draggable-question-order-table',
       'render element' => 'form',
     ),
     'faq_questions_top' => array(
@@ -106,21 +109,38 @@ function faq_theme() {
  * Theme function for question ordering drag and drop table.
  */
 function template_preprocess_faq_draggable_question_order_table(&$variables){
-    $form = $variables['form'];
-    $table = array(
-        '#type' => 'table',
-        '#header' => array('asd', 'pasd', 'dasd'),
-        '#rows' => array(array(1,2,3)),
-        '#attributes' => array(
-            'id' => 'my-module-table',
-        ),
-    );
-    return drupal_render($table);
-}
-
-/**
- * Theme function for faq page wrapper divs.
- */
-function template_preprocess_faq_page(&$variables) {
+  $form = $variables['form'];
+  $options = array(
+    'table_id' => 'question-sort',
+    'action' => 'order',
+    'relationship' => 'sibling',
+    'group' => 'element-group',
+    'hidden' => '3',
+  );
+  $header = array('', t('Question'), '', t('Sort'));
+  $rows = array();
+  foreach (Element::children($form) as $key) {
+    // Add class to group weight fields for drag and drop.
+    $form[$key]['sort']['#attributes']['class'] = array('sort');
+    $row = array('');
+    $row[] = drupal_render($form[$key]['title']);
+    $row[] = drupal_render($form[$key]['nid']);
+    $row[] = drupal_render($form[$key]['sort']);
     
+    $rows[] = array(
+      'data' => $row,
+      'class' => array('draggable'),
+    );
+  }
+  
+  $table = array(
+    '#type' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+    '#attributes' => array(
+      'id' => 'question-sort',
+    ),
+  );
+  drupal_attach_tabledrag($table, $options);
+  $variables['order_table'] = $table;
 }
