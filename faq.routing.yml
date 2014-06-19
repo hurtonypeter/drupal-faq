@@ -6,8 +6,24 @@ faq.faq-page:
     requirements:
         _permission: 'view faq page'
 
+faq.faq-page-category:
+    path: '/faq-page/{tid}'
+    defaults:
+        _title: 'Frequently Asked Questions'
+        _content: 'Drupal\faq\Controller\FaqController::faqPage'
+    requirements:
+        _permission: 'view faq page'
+
 faq.faq-page.order:
     path: '/faq-page/order'
+    defaults:
+        _title: 'Order'
+        _content: 'Drupal\faq\Controller\FaqController::orderPage'
+    requirements:
+        _permission: 'view faq page'
+
+faq.faq-page.order-category:
+    path: '/faq-page/{category}/order'
     defaults:
         _title: 'Order'
         _content: 'Drupal\faq\Controller\FaqController::orderPage'
