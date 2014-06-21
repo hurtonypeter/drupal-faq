@@ -56,7 +56,7 @@ class OrderForm extends ConfigFormBase {
       foreach ($vocabularies as $vid => $vobj) {
         $tree = taxonomy_get_tree($vid);
         foreach ($tree as $term) {
-          if (!FaqHelper::faq_taxonomy_term_count_nodes($term->tid)) {
+          if (!FaqHelper::faqTaxonomyTermCountNodes($term->tid)) {
             continue;
           }
           $options[$term->tid] = $this->t($term->name);
@@ -119,7 +119,7 @@ class OrderForm extends ConfigFormBase {
           ->orderBy('d.sticky', 'DESC')
           ->orderBy('d.created', $default_sorting == 'DESC' ? 'DESC' : 'ASC');
       }
-
+      
       $options = $query->execute()->fetchAll();
 
       $form['weight']['faq_category'] = array(

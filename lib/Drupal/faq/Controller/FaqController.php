@@ -134,10 +134,15 @@ class FaqController extends ControllerBase {
       // Only need the nid column.
       $nids = $query->execute()->fetchCol();
       $data = Node::loadMultiple($nids);
+      
       // TODO: switch faq_display: change theme() calls
       switch ($faq_display) {
         case 'questions_top':
           //$output = theme('faq_questions_top', array('data' => $data));
+          $questions_top = array();
+          $questions_top['#theme'] = 'faq_questions_top';
+          $questions_top['#data'] = $data;
+          $output = drupal_render($questions_top);
           break;
 
         case 'hide_answer':
@@ -199,7 +204,7 @@ class FaqController extends ControllerBase {
             switch ($category_display) {
               case 'hide_qa':
               case 'categories_inline':
-                if (FaqHelper::faq_taxonomy_term_count_nodes($term->tid)) {
+                if (FaqHelper::faqTaxonomyTermCountNodes($term->tid)) {
                   $this->display_faq_by_category($faq_display, $category_display, $term, 1, $output, $output_answers);
                 }
                 break;
@@ -219,12 +224,17 @@ class FaqController extends ControllerBase {
     if ($format) {
       $faq_description = check_markup($faq_description, $format);
     }
-
-    // return theme('faq_page', array('content' => $output, 'answers' => $output_answers, 'description' => $faq_description));
-    /* $build = array(
-      '#type' => 'markup',
-      '#markup' => $this->t($faq_settings->get('title'))
-      ); */
+    
+    $markup = array(
+      '#theme' => 'faq_page',
+      '#content' => $output,
+      '#answers' => $output_answers,
+      '#description' => $faq_description,
+    );
+    
+    $build['#type'] = 'markup';
+    $build['#markup'] = drupal_render($markup);
+    
     return $build;
   }
 
@@ -495,7 +505,7 @@ class FaqController extends ControllerBase {
     $tree = taxonomy_get_tree($vid, $tid, 1, TRUE);
 
     foreach ($tree as $term) {
-      $tree_count = FaqHelper::faq_taxonomy_term_count_nodes($term->tid);
+      $tree_count = FaqHelper::faqTaxonomyTermCountNodes($term->tid);
 
       if ($tree_count) {
         // Get term description.

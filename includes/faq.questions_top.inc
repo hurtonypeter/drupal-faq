@@ -6,6 +6,7 @@
  */
 
 use Drupal\faq\FaqHelper;
+use Drupal\faq\FaqViewer;
 use Drupal\Component\Utility\String;
 
 /**
@@ -34,29 +35,35 @@ function template_preprocess_faq_questions_top(&$variables) {
   }
 
   // Configure "back to top" link.
-  $this_page = $_GET['q'];
-  $back_to_top = FaqHelper::faq_init_back_to_top($this_page);
+  $this_page = current_path();
+  $back_to_top = FaqViewer::initBackToTop($this_page);
 
   // Loop through results.
   $questions = array();
   $answers = array();
   $key = 0;
   foreach ($data as $node) {
-    $anchor = 'n' . $node->nid;
-    $questions[$key] = l($node->title, $this_page, array('fragment' => $anchor));
-    FaqHelper::faq_view_question($answers[$key], $node, NULL, $anchor);
-    FaqHelper::faq_view_answer($answers[$key], $node, $back_to_top, $teaser, $links);
+    //var_dump($node);
+    $anchor = 'n' . $node->id();
+    $questions[$key] = l($node->getTitle(), $this_page, array('fragment' => $anchor));
+    FaqViewer::viewQuestion($answers[$key], $node, NULL, $anchor);
+    FaqViewer::viewAnswer($answers[$key], $node, $back_to_top, $teaser, $links);
     $key++;
   }
   $variables['limit'] = $key;
-
+  
   $list_style = $faq_settings->get('question_listing');
   $variables['list_style'] = $list_style;
   $variables['use_teaser'] = $teaser;
   $variables['questions'] = $questions;
   $variables['answers'] = $answers;
-  //TODO: chage theme()
-  //$variables['questions_list'] = theme('item_list', array('items' => $questions, 'title' => NULL, 'type' => $list_style, 'attributes' => array("class" => "faq-ul-questions-top")));
+  $item_list = array(
+    '#theme' => 'item_list',
+    '#items' => $questions,
+    '#title' => t('Content'),
+    '#list_type' => $list_style,
+  );
+  $variables['questions_list'] = drupal_render($item_list);
 }
 
 /**
@@ -115,12 +122,12 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   }
 
   // Configure "back to top" link.
-  $back_to_top = FaqHelper::faq_init_back_to_top($this_page);
+  $back_to_top = FaqViewer::faqInitBackToTop($this_page);
 
   // Get number of questions, and account for hidden sub-categories.
   $count = 0;
   if ($display_faq_count && $hide_child_terms) {
-    $count = FaqHelper::faq_taxonomy_term_count_nodes($term->tid);
+    $count = FaqHelper::faqTaxonomyTermCountNodes($term->tid);
   }
   $variables['display_faq_count'] = $display_faq_count;
 
@@ -148,7 +155,7 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   // Get list of sub-categories if necessary.
   $child_categories = array();
   if (($show_term_page_children || $hide_child_terms) && $category_display == 'new_page') {
-    $child_categories = FaqHelper::faq_view_child_category_headers($term);
+    $child_categories = FaqHelper::faqViewChildCategoryHeaders($term);
   }
   $variables['subcat_list'] = $child_categories;
   $variables['subcat_list_style'] = $faq_settings->get('category_listing');
@@ -163,7 +170,7 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   // Configure sub-category bodies (theme recursively).
   $variables['subcat_body_list'] = array();
   if (($get_child_terms && $category_display == 'categories_inline') || ((($show_term_page_children && $this_page != 'faq-page') || $hide_child_terms) && $category_display == 'hide_qa')) {
-    $variables['subcat_body_list'] = FaqHelper::faq_get_child_categories_faqs($term, 'faq_category_questions_top', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
+    $variables['subcat_body_list'] = FaqHelper::faqGetChildCategoriesFaqs($term, 'faq_category_questions_top', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
   }
 
   $variables['group_questions_top'] = $group_questions_top;
@@ -183,9 +190,9 @@ function template_preprocess_faq_category_questions_top(&$variables) {
     }
     $node_var = array();
     $anchor = 't' . $term->tid . 'n' . $node->nid;
-    FaqHelper::faq_view_question($node_var, $node, NULL, $anchor);
+    FaqViewer::viewQuestion($node_var, $node, NULL, $anchor);
     if ($group_questions_top || $category_display == 'hide_qa') {
-      FaqHelper::faq_view_answer($node_var, $node, $back_to_top, $teaser, $links);
+      FaqViewer::viewAnswer($node_var, $node, $back_to_top, $teaser, $links);
     }
     $nodes[] = $node_var;
     $questions[] = l($node->title, $this_page, array('fragment' => $anchor));
@@ -266,7 +273,7 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   }
 
   // Configure "back to top" link.
-  $back_to_top = FaqHelper::faq_init_back_to_top($this_page);
+  $back_to_top = FaqViewer::initBackToTop($this_page);
 
   // taxonomy_image does not exists in D8 yet
   // Get taxonomy image.
@@ -278,7 +285,7 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   // Configure sub-category bodies (theme recursively).
   $variables['subcat_body_list'] = array();
   if (($get_child_terms && $category_display == 'categories_inline') || ((($show_term_page_children && $this_page != 'faq-page') || $hide_child_terms) && $category_display == 'hide_qa')) {
-    $variables['subcat_body_list'] = FaqHelper::faq_get_child_categories_faqs($term, 'faq_category_questions_top_answers', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
+    $variables['subcat_body_list'] = FaqHelper::faqGetChildCategoriesFaqs($term, 'faq_category_questions_top_answers', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
   }
 
 
@@ -286,8 +293,8 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   foreach ($data as $node) {
     $node_var = array();
     $anchor = 't' . $term->tid . 'n' . $node->nid;
-    FaqHelper::faq_view_question($node_var, $node, NULL, $anchor);
-    FaqHelper::faq_view_answer($node_var, $node, $back_to_top, $teaser, $links);
+    FaqViewer::viewQuestion($node_var, $node, NULL, $anchor);
+    FaqViewer::viewAnswer($node_var, $node, $back_to_top, $teaser, $links);
     $nodes[] = $node_var;
   }
   $variables['use_teaser'] = $teaser;
@@ -296,7 +303,7 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   $variables['category_depth'] = $term->depth;
   $variables['display_header'] = FALSE;
   $variables['answer_category_name'] = $faq_settings->get('answer_category_name');
-  if ($variables['answer_category_name'] && FaqHelper::faq_taxonomy_term_count_nodes($term->tid)) {
+  if ($variables['answer_category_name'] && FaqHelper::faqTaxonomyTermCountNodes($term->tid)) {
     $variables['display_header'] = TRUE;
   }
 }

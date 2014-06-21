@@ -46,8 +46,7 @@ function faq_theme() {
       'render element' => 'form',
     ),
     'faq_questions_top' => array(
-      'path' => $path,
-      'file' => 'faq.questions_top.inc',
+      'file' => '/includes/faq.questions_top.inc',
       'template' => 'faq-questions-top',
       'variables' => array('data' => NULL),
     ),
@@ -101,6 +100,7 @@ function faq_theme() {
     ),
     'faq_page' => array(
       'variables' => array('content' => '', 'answers' => '', 'description' => NULL),
+      'template' => 'faq-page',
     ),
   );
 }
@@ -143,4 +143,16 @@ function template_preprocess_faq_draggable_question_order_table(&$variables){
   );
   drupal_attach_tabledrag($table, $options);
   $variables['order_table'] = $table;
+}
+
+/**
+ * Theme function for faq page wrapper divs.
+ */
+function template_preprocess_faq_page(&$variables) {
+  $faq_settings = \Drupal::config('faq.settings');
+  if($faq_settings->get('show_expand_all')) {
+    $variables['faq_expand'] = true;
+  } else {
+    $variables['faq_expand'] = false;
+  }
 }
