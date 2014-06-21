@@ -114,7 +114,7 @@ class CategoriesForm extends ConfigFormBase {
             '#default_value' => $faq_settings->get('show_term_page_children')
         );
         
-        $moduleHandler = new ModuleHandler;
+        $moduleHandler = \Drupal::moduleHandler();
         if($moduleHandler->moduleExists('taxonomy')){
             $form['faq_category_advanced'] = array(
                 '#type' => 'details',
