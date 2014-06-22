@@ -6,6 +6,7 @@
  */
 
 use Drupal\faq\FaqHelper;
+use Drupal\faq\FaqViewer;
 use Drupal\Component\Utility\String;
 
 /**
@@ -17,7 +18,7 @@ use Drupal\Component\Utility\String;
 function template_preprocess_faq_hide_answer(&$variables) {
   $faq_settings = \Drupal::config('faq.settings');
   $data = $variables['data'];
-  $this_page = $_GET['q'];
+  $this_page = current_path();
 
   // Fetch configuration.
   $teaser = $faq_settings->get('use_teaser');
@@ -27,9 +28,9 @@ function template_preprocess_faq_hide_answer(&$variables) {
   $nodes = array();
   $count = 0;
   foreach ($data as $node) {
-    $anchor = 'n' . $node->nid;
-    FaqHelper::faq_view_question($nodes[$count], $node, $this_page, $anchor);
-    FaqHelper::faq_view_answer($nodes[$count], $node, array(), $teaser, $links);
+    $anchor = 'n' . $node->id();
+    FaqViewer::viewQuestion($nodes[$count], $node, $this_page, $anchor);
+    FaqViewer::viewAnswer($nodes[$count], $node, array(), $teaser, $links);
     $count++;
   }
   $variables['use_teaser'] = $teaser;
@@ -47,6 +48,7 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   $data = $variables['data'];
   $category_display = $variables['category_display'];
   $term = $variables['term'];
+  $term_id = $term->id();
   $parent_term = $variables['parent_term'];
   $class = $variables['class'];
 
@@ -65,7 +67,7 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   if ($default_sorting != 'DESC') {
     $default_weight = 1000000;
   }
-  $this_page = $_GET['q'];
+  $this_page = current_path();
   $get_child_terms = 0;
   // Check if we're on a faq page.
   if (arg(0) == 'faq-page') {
@@ -77,7 +79,7 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   // Force some settings in case we're processing a special faq question list
   // created by a custom call to faq_page().
   elseif (!empty($parent_term)) {
-    $get_child_terms = $parent_term->tid;
+    $get_child_terms = $parent_term->id();
     $show_term_page_children = TRUE;
   }
 
@@ -85,7 +87,7 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   // Get number of questions, and account for hidden sub-categories.
   $count = 0;
   if ($display_faq_count && $hide_child_terms) {
-    $count = FaqHelper::faqTaxonomyTermCountNodes($term->tid);
+    $count = FaqHelper::faqTaxonomyTermCountNodes($term_id);
   }
   $variables['display_faq_count'] = $display_faq_count;
 
@@ -98,16 +100,16 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
 
   // Configure header.
   $variables['category_depth'] = $term->depth;
-  $variables['category_name'] = String::checkPlain($term->name);
+  $variables['category_name'] = String::checkPlain($term->getName());
   if ($category_display == 'hide_qa') {
-    $variables['header_title'] = l($term->name, "faq/$term->tid");
+    $variables['header_title'] = l($term->getName(), "faq/$term_id");
   }
   else {
-    $variables['header_title'] = String::checkPlain($term->name);
+    $variables['header_title'] = String::checkPlain($term->getName());
   }
 
   // Configure category description.
-  $variables['description'] = check_markup($term->description);
+  $variables['description'] = $term->getDescription();
 
   // Get list of sub-categories if necessary.
   $child_categories = array();
@@ -118,7 +120,7 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   $variables['subcat_list_style'] = $faq_settings->get('category_listing');
 
   // Configure class (faq-qa or faq-qa-hide).
-  if ($get_child_terms == $term->tid) {
+  if ($get_child_terms == $term_id) {
     $variables['container_class'] = 'faq-qa';
   }
   else {
@@ -143,9 +145,9 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
       $count++;
     }
     $node_var = array();
-    $anchor = 't' . $term->tid . 'n' . $node->nid;
-    FaqHelper::faq_view_question($node_var, $node, $this_page, $anchor);
-    FaqHelper::faq_view_answer($node_var, $node, array(), $teaser, $links);
+    $anchor = 't' . $term_id . 'n' . $node->id();
+    FaqViewer::viewQuestion($node_var, $node, $this_page, $anchor);
+    FaqViewer::viewAnswer($node_var, $node, array(), $teaser, $links);
     $nodes[] = $node_var;
   }
   $variables['nodes'] = $nodes;
