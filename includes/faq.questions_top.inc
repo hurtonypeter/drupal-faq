@@ -127,7 +127,7 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   // Get number of questions, and account for hidden sub-categories.
   $count = 0;
   if ($display_faq_count && $hide_child_terms) {
-    $count = FaqHelper::faqTaxonomyTermCountNodes($term->id());
+    $count = FaqHelper::taxonomyTermCountNodes($term->id());
   }
   $variables['display_faq_count'] = $display_faq_count;
 
@@ -156,7 +156,7 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   // Get list of sub-categories if necessary.
   $child_categories = array();
   if (($show_term_page_children || $hide_child_terms) && $category_display == 'new_page') {
-    $child_categories = FaqHelper::faqViewChildCategoryHeaders($term);
+    $child_categories = FaqHelper::viewChildCategoryHeaders($term);
   }
   $variables['subcat_list'] = $child_categories;
   $variables['subcat_list_style'] = $faq_settings->get('category_listing');
@@ -171,7 +171,7 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   // Configure sub-category bodies (theme recursively).
   $variables['subcat_body_list'] = array();
   if (($get_child_terms && $category_display == 'categories_inline') || ((($show_term_page_children && $this_page != 'faq-page') || $hide_child_terms) && $category_display == 'hide_qa')) {
-    $variables['subcat_body_list'] = FaqHelper::faqGetChildCategoriesFaqs($term, 'faq_category_questions_top', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
+    $variables['subcat_body_list'] = FaqHelper::getChildCategoriesFaqs($term, 'faq_category_questions_top', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
   }
 
   $variables['group_questions_top'] = $group_questions_top;
@@ -286,7 +286,7 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   // Configure sub-category bodies (theme recursively).
   $variables['subcat_body_list'] = array();
   if (($get_child_terms && $category_display == 'categories_inline') || ((($show_term_page_children && $this_page != 'faq-page') || $hide_child_terms) && $category_display == 'hide_qa')) {
-    $variables['subcat_body_list'] = FaqHelper::faqGetChildCategoriesFaqs($term, 'faq_category_questions_top_answers', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
+    $variables['subcat_body_list'] = FaqHelper::getChildCategoriesFaqs($term, 'faq_category_questions_top_answers', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
   }
 
 
@@ -304,7 +304,7 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   $variables['category_depth'] = $term->depth;
   $variables['display_header'] = FALSE;
   $variables['answer_category_name'] = $faq_settings->get('answer_category_name');
-  if ($variables['answer_category_name'] && FaqHelper::faqTaxonomyTermCountNodes($term->id())) {
+  if ($variables['answer_category_name'] && FaqHelper::taxonomyTermCountNodes($term->id())) {
     $variables['display_header'] = TRUE;
   }
 }

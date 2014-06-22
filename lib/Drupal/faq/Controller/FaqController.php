@@ -124,7 +124,6 @@ class FaqController extends ControllerBase {
       $query->addExpression("COALESCE(w.weight, $default_weight)", 'effective_weight');
       // Doesn't work in Postgres.
       //$query->addExpression('COALESCE(w.weight, CAST(:default_weight as SIGNED))', 'effective_weight', array(':default_weight' => $default_weight));
-      // TODO: order by sticky
       $query->orderBy('effective_weight', 'ASC')
         ->orderBy('d.sticky', 'DESC');
       if ($default_sorting == 'ASC') {
@@ -141,7 +140,6 @@ class FaqController extends ControllerBase {
       $questions_to_render = array();
       $questions_to_render['#data'] = $data;
 
-      // TODO: switch faq_display: change theme() calls
       switch ($faq_display) {
         case 'questions_top':
           $questions_to_render['#theme'] = 'faq_questions_top';
@@ -213,7 +211,7 @@ class FaqController extends ControllerBase {
             switch ($category_display) {
               case 'hide_qa':
               case 'categories_inline':
-                if (FaqHelper::faqTaxonomyTermCountNodes($term->id())) {
+                if (FaqHelper::taxonomyTermCountNodes($term->id())) {
                   $this->displayFaqByCategory($faq_display, $category_display, $term, 1, $output, $output_answers);
                 }
                 break;
@@ -273,7 +271,6 @@ class FaqController extends ControllerBase {
       drupal_get_path('module', 'faq') . '/css/faq.css'
     );
 
-    // TODO: pass the category id to the form
     $build['faq_order'] = $this->formBuilder()->getForm('Drupal\faq\Form\OrderForm');
 
     return $build;
@@ -515,7 +512,6 @@ class FaqController extends ControllerBase {
     //if ($this->moduleHandler()->moduleExists('pathauto')) {
     // pathauto does't exists in D8 yet
     //}
-    // TODO: this function is bugged, can't render item_list from this output
     $faq_settings = \Drupal::config('faq.settings');
 
     $display_faq_count = $faq_settings->get('count');
@@ -526,7 +522,7 @@ class FaqController extends ControllerBase {
 
     foreach ($tree as $term) {
       $term_id = $term->id();
-      $tree_count = FaqHelper::faqTaxonomyTermCountNodes($term_id);
+      $tree_count = FaqHelper::taxonomyTermCountNodes($term_id);
 
       if ($tree_count) {
         // Get term description.

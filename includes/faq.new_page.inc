@@ -86,7 +86,7 @@ function template_preprocess_faq_category_new_page(&$variables) {
   // Get number of questions, and account for hidden sub-categories.
   $count = 0;
   if ($display_faq_count && $hide_child_terms) {
-    $count = FaqHelper::faqTaxonomyTermCountNodes($term_id);
+    $count = FaqHelper::taxonomyTermCountNodes($term_id);
   }
   $variables['display_faq_count'] = $display_faq_count;
 
@@ -112,7 +112,7 @@ function template_preprocess_faq_category_new_page(&$variables) {
   // Get list of sub-categories if necessary.
   $child_categories = array();
   if (($show_term_page_children || $hide_child_terms) && $category_display == 'new_page') {
-    $child_categories = FaqHelper::faqViewChildCategoryHeaders($term);
+    $child_categories = FaqHelper::viewChildCategoryHeaders($term);
   }
   $variables['subcat_list'] = $child_categories;
   $variables['subcat_list_style'] = $faq_settings->get('category_listing');
@@ -128,7 +128,7 @@ function template_preprocess_faq_category_new_page(&$variables) {
   // Configure sub-category bodies (theme recursively).
   $variables['subcat_body_list'] = array();
   if (($get_child_terms && $category_display == 'categories_inline') || ((($show_term_page_children && $this_page != 'faq-page') || $hide_child_terms) && $category_display == 'hide_qa')) {
-    $variables['subcat_body_list'] = FaqHelper::faqGetChildCategoriesFaqs($term, 'faq_category_new_page', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
+    $variables['subcat_body_list'] = FaqHelper::getChildCategoriesFaqs($term, 'faq_category_new_page', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
   }
 
   if (!count($data)) {

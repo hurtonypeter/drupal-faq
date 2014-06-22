@@ -22,7 +22,7 @@ class FaqHelper {
    * @return int
    *   Returns the count of the nodes in the given term.
    */
-  public static function faqTaxonomyTermCountNodes($tid) {
+  public static function taxonomyTermCountNodes($tid) {
     static $count;
 
     if (!isset($count) || !isset($count[$tid])) {
@@ -38,17 +38,17 @@ class FaqHelper {
     }
 
     $children_count = 0;
-    foreach (FaqHelper::faqTaxonomyTermChildren($tid) as $child_term) {
-      $children_count += FaqHelper::faqTaxonomyTermCountNodes($child_term);
+    foreach (FaqHelper::taxonomyTermChildren($tid) as $child_term) {
+      $children_count += FaqHelper::taxonomyTermCountNodes($child_term);
     }
 
     return $count[$tid] + $children_count;
   }
 
   /**
-   * Helper function to faqTaxonomyTermCountNodes() to return list of child terms.
+   * Helper function to taxonomyTermCountNodes() to return list of child terms.
    */
-  public static function faqTaxonomyTermChildren($tid) {
+  public static function taxonomyTermChildren($tid) {
     static $children;
 
     if (!isset($children)) {
@@ -85,7 +85,7 @@ class FaqHelper {
    * @param $parent_term
    *   The original, top-level, term we're displaying FAQs for.
    */
-  public static function faqGetChildCategoriesFaqs($term, $theme_function, $default_weight, $default_sorting, $category_display, $class, $parent_term = NULL) {
+  public static function getChildCategoriesFaqs($term, $theme_function, $default_weight, $default_sorting, $category_display, $class, $parent_term = NULL) {
     $output = array();
 
     $list = taxonomy_term_load_children($term->id());
@@ -96,7 +96,7 @@ class FaqHelper {
     foreach ($list as $tid => $child_term) {
       $child_term->depth = $term->depth + 1;
 
-      if (FaqHelper::faqTaxonomyTermCountNodes($child_term->id())) {
+      if (FaqHelper::taxonomyTermCountNodes($child_term->id())) {
         $query = db_select('node', 'n');
         $query->join('node_field_data', 'd', 'n.nid = d.nid');
         $ti_alias = $query->innerJoin('taxonomy_index', 'ti', '(n.nid = %alias.nid)');
@@ -131,7 +131,6 @@ class FaqHelper {
         $nids = $query->execute()->fetchCol();
         $data = Node::loadMultiple($nids);
 
-        //TODO: change theme() 
         $to_render = array(
           '#theme' => $theme_function,
           '#data' => $data,
@@ -157,13 +156,13 @@ class FaqHelper {
    * @return
    *   An array of sub-categories.
    */
-  public static function faqViewChildCategoryHeaders($term) {
+  public static function viewChildCategoryHeaders($term) {
 
     $child_categories = array();
     $list = taxonomy_term_load_children($term->id());
 
     foreach ($list as $tid => $child_term) {
-      $term_node_count = $this->faqTaxonomyTermCountNodes($child_term->id());
+      $term_node_count = $this->taxonomyTermCountNodes($child_term->id());
       if ($term_node_count) {
 
         // Get taxonomy image.

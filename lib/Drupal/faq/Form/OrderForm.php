@@ -28,7 +28,7 @@ class OrderForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, array &$form_state, $category = NULL) {
-
+    
     //get category id from route values
     if(is_numeric(arg(1))) {
       $category = arg(1);
@@ -61,7 +61,7 @@ class OrderForm extends ConfigFormBase {
       foreach ($vocabularies as $vid => $vobj) {
         $tree = taxonomy_get_tree($vid);
         foreach ($tree as $term) {
-          if (!FaqHelper::faqTaxonomyTermCountNodes($term->tid)) {
+          if (!FaqHelper::taxonomyTermCountNodes($term->tid)) {
             continue;
           }
           $options[$term->tid] = $this->t($term->name);
@@ -178,29 +178,6 @@ class OrderForm extends ConfigFormBase {
             'nid' => $nid,
           ))
           ->execute();
-
-        // If node translation module enabled, update order of the translation
-        // node counterparts.
-        // TODO: review this part
-//      if (module_exists('translation')) {
-//        $node = node_load($nid);
-//        if ($node->tnid) {
-//          $translations = translation_node_get_translations($node->tnid);
-//          if (!empty($translations)) {
-//            foreach ($translations as $language => $tnode) {
-//              db_merge('faq_weights')
-//                ->fields(array(
-//                  'weight' => $index,
-//                ))
-//                ->key(array(
-//                  'tid' => $form_state['values']['faq_category'],
-//                  'nid' => $tnode->nid,
-//                ))
-//                ->execute();
-//            }
-//          }
-//        }
-//      }
       }
 
       parent::submitForm($form, $form_state);
