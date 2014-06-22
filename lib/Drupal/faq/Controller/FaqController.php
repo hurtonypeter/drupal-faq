@@ -39,7 +39,7 @@ class FaqController extends ControllerBase {
    */
   public function faqPage($tid = 0, $faq_display = '', $category_display = '') {
     $faq_settings = \Drupal::config('faq.settings');
-    
+
     $output = $output_answers = '';
 
     $build = array();
@@ -57,15 +57,15 @@ class FaqController extends ControllerBase {
     // Configure the breadcrumb trail.
     if (!empty($tid) && $current_term = Term::load($tid)) {
       //if (!\Drupal::service('path.alias_manager.cached')->getPathAlias(arg(0) . '/' . $tid) && $this->moduleHandler()->moduleExists('pathauto')) {
-        //pathauto is not exists in D8 yet
-        //$alias = pathauto_create_alias('faq', 'insert', arg(0) . '/' . arg(1), array('term' => $current_term));
-        //if ($alias) {
-        //  drupal_goto($alias['alias']);
-        //}
+      //pathauto is not exists in D8 yet
+      //$alias = pathauto_create_alias('faq', 'insert', arg(0) . '/' . arg(1), array('term' => $current_term));
+      //if ($alias) {
+      //  drupal_goto($alias['alias']);
+      //}
       //}
       // TODO: change to Drupal\Core\Path\PathMatcher::matchPath()
       //if (drupal_match_path($_GET['q'], 'faq-page/*')) {
-      //  $this->faq_set_breadcrumb($current_term);
+      //  $this->setFaqBreadcrumb($current_term);
       //}
     }
 
@@ -137,10 +137,10 @@ class FaqController extends ControllerBase {
       // Only need the nid column.
       $nids = $query->execute()->fetchCol();
       $data = Node::loadMultiple($nids);
-      
+
       $questions_to_render = array();
       $questions_to_render['#data'] = $data;
-      
+
       // TODO: switch faq_display: change theme() calls
       switch ($faq_display) {
         case 'questions_top':
@@ -173,7 +173,7 @@ class FaqController extends ControllerBase {
           if (arg(0) == 'faq-page' && is_numeric(arg(1))) {
             $build['#title'] = ($title . ($title ? ' - ' : '') . $this->t($term->getName()));
           }
-          $this->display_faq_by_category($faq_display, $category_display, $term, 0, $output, $output_answers);
+          $this->displayFaqByCategory($faq_display, $category_display, $term, 0, $output, $output_answers);
           $to_render = array(
             '#theme' => 'faq_page',
             '#content' => $output,
@@ -186,7 +186,7 @@ class FaqController extends ControllerBase {
           throw new NotFoundHttpException();
         }
       }
-      
+
       $list_style = $faq_settings->get('category_listing');
       $vocabularies = Vocabulary::loadMultiple();
       $vocab_omit = $faq_settings->get('omit_vocabulary');
@@ -198,7 +198,7 @@ class FaqController extends ControllerBase {
         }
 
         if ($category_display == "new_page") {
-          $vocab_items = $this->get_indented_faq_terms($vid, 0);
+          $vocab_items = $this->getIndentedFaqTerms($vid, 0);
           $items = array_merge($items, $vocab_items);
         }
         // Not a new page.
@@ -214,7 +214,7 @@ class FaqController extends ControllerBase {
               case 'hide_qa':
               case 'categories_inline':
                 if (FaqHelper::faqTaxonomyTermCountNodes($term->id())) {
-                  $this->display_faq_by_category($faq_display, $category_display, $term, 1, $output, $output_answers);
+                  $this->displayFaqByCategory($faq_display, $category_display, $term, 1, $output, $output_answers);
                 }
                 break;
             }
@@ -223,13 +223,7 @@ class FaqController extends ControllerBase {
       }
 
       if ($category_display == "new_page") {
-        $item_list = array(
-          '#theme' => 'item_list',
-          '#items' => $items,
-          '#title' => NULL,
-          '#list_type' => $list_style,
-        );
-        $output = drupal_render($item_list);
+        $output = $this->renderCategoriesToList($items, $list_style);
       }
     }
 
@@ -238,7 +232,7 @@ class FaqController extends ControllerBase {
     if ($format) {
       $faq_description = check_markup($faq_description, $format);
     }
-    
+
     $markup = array(
       '#theme' => 'faq_page',
       '#content' => $output,
@@ -246,7 +240,7 @@ class FaqController extends ControllerBase {
       '#description' => $faq_description,
     );
     $build['#markup'] = drupal_render($markup);
-    
+
     return $build;
   }
 
@@ -361,7 +355,7 @@ class FaqController extends ControllerBase {
     return $build;
   }
 
-  /*   * ****************************************************************
+  /*   * ***************************************************************
    * PRIVATE HELPER FUCTIONS
    * *************************************************************** */
 
@@ -371,7 +365,7 @@ class FaqController extends ControllerBase {
    * @param $term
    *   The taxonomy term object.
    */
-  private function faq_set_breadcrumb($term = NULL) {
+  private function setFaqBreadcrumb($term = NULL) {
     $faq_settings = \Drupal::config('faq.settings');
 
     $breadcrumb = array();
@@ -411,15 +405,15 @@ class FaqController extends ControllerBase {
    *   Reference which holds the answers from the FAQ, when showing questions
    *   on top.
    */
-  private function display_faq_by_category($faq_display, $category_display, $term, $display_header, &$output, &$output_answers) {
+  private function displayFaqByCategory($faq_display, $category_display, $term, $display_header, &$output, &$output_answers) {
     $default_sorting = \Drupal::config('faq.settings')->get('default_sorting');
-    
+
     $term_id = $term->id();
-    
+
     $query = db_select('node', 'n');
     $query->join('node_field_data', 'd', 'd.nid = n.nid');
     $query->innerJoin('taxonomy_index', 'ti', 'n.nid = ti.nid');
-    $query->leftJoin('faq_weights', 'w', 'n.nid = w.nid');
+    $query->leftJoin('faq_weights', 'w', 'w.tid = ti.tid AND n.nid = w.nid');
     $query->fields('n', array('nid'))
       ->condition('n.type', 'faq')
       ->condition('d.status', 1)
@@ -476,7 +470,7 @@ class FaqController extends ControllerBase {
       '#class' => $faq_class,
       '#parent_term' => $term,
     );
-    
+
     switch ($faq_display) {
       case 'questions_top':
         $output_render['#theme'] = 'faq_category_questions_top';
@@ -508,7 +502,7 @@ class FaqController extends ControllerBase {
   }
 
   /**
-   * Return a HTML formatted list of terms indented according to the term depth.
+   * Return a structured array that consists a list of terms indented according to the term depth.
    *
    * @param $vid
    *   Vocabulary id.
@@ -517,11 +511,11 @@ class FaqController extends ControllerBase {
    * @return
    *   Return a HTML formatted list of terms indented according to the term depth.
    */
-  private function get_indented_faq_terms($vid, $tid) {
+  private function getIndentedFaqTerms($vid, $tid) {
     //if ($this->moduleHandler()->moduleExists('pathauto')) {
-      // pathauto does't exists in D8 yet
+    // pathauto does't exists in D8 yet
     //}
-
+    // TODO: this function is bugged, can't render item_list from this output
     $faq_settings = \Drupal::config('faq.settings');
 
     $display_faq_count = $faq_settings->get('count');
@@ -540,10 +534,10 @@ class FaqController extends ControllerBase {
         $term_description = $term->getDescription();
         if (!empty($term_description)) {
           $desc = '<div class="faq-qa-description">';
-          $desc .= check_markup($this->t($term_description)) . "</div>";
+          $desc .= $term_description . "</div>";
         }
 
-        
+
         $query = db_select('node', 'n');
         $query->join('node_field_data', 'd', 'n.nid = d.nid');
         $query->innerJoin('taxonomy_index', 'ti', 'n.nid = ti.nid');
@@ -555,7 +549,7 @@ class FaqController extends ControllerBase {
           ->execute()
           ->fetchField();
 
-        
+
         if ($term_node_count > 0) {
           $path = "faq-page/$term_id";
 
@@ -583,16 +577,66 @@ class FaqController extends ControllerBase {
 
         $term_items = array();
         if (!$hide_child_terms) {
-          $term_items = $this->get_indented_faq_terms($vid, $term_id);
+          $term_items = $this->getIndentedFaqTerms($vid, $term_id);
         }
         $items[] = array(
-          "data" => $cur_item,
+          "items" => $cur_item,
           "children" => $term_items,
         );
       }
     }
 
     return $items;
+  }
+
+  /**
+   * Renders the output of getIntendedTerms to HTML list.
+   * 
+   * @param array $items
+   *   The structured array made by getIntendedTerms function
+   * @param string $list_style
+   *   List style type: ul or ol.
+   * @param int $first
+   *   Default value is 0, it's used for only to controll the recursive iteration.
+   * @return string
+   *   HTML formatted output.
+   */
+  private function renderCategoriesToList($items, $list_style, $first = 0) {
+    $output = '';
+    $first_iter = array();
+
+    foreach ($items as $item) {
+      $pre = '';
+      if (!empty($item['children'])) {
+        $pre = $this->renderCategoriesToList($item['children'], $list_style, $first + 1);
+      }
+      $render = array(
+        '#theme' => 'item_list',
+        '#items' => array($item['items'] . $pre),
+        '#list_style' => $list_style,
+      );
+      if ($first == 0) {
+        $output .= drupal_render($render);
+      }
+      elseif ($first == 1) {
+        $first_iter [] = $item['items'] . $pre;
+      }
+      else {
+        $first_iter[] = drupal_render($render);
+      }
+    }
+
+    if (!$first) {
+      return $output;
+    }
+    else {
+      $render_first = array(
+        '#theme' => 'item_list',
+        '#items' => $first_iter,
+        '#list_style' => $list_style,
+      );
+      return drupal_render($render_first);
+    }
   }
 
 }

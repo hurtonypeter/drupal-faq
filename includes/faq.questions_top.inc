@@ -191,12 +191,12 @@ function template_preprocess_faq_category_questions_top(&$variables) {
     }
     $node_var = array();
     $anchor = 't' . $term->id() . 'n' . $node->id();
+    $questions[] = l($node->getTitle(), $this_page, array('fragment' => $anchor));
     FaqViewer::viewQuestion($node_var, $node, NULL, $anchor);
     if ($group_questions_top || $category_display == 'hide_qa') {
       FaqViewer::viewAnswer($node_var, $node, $back_to_top, $teaser, $links);
     }
     $nodes[] = $node_var;
-    $questions[] = l($node->getTitle(), $this_page, array('fragment' => $anchor));
   }
   $variables['question_count'] = $count;
   $variables['use_teaser'] = $teaser;

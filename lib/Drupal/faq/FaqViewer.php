@@ -75,7 +75,7 @@ class FaqViewer {
    *
    * @param &$data
    *   Array reference to store display data in.
-   * @param $node
+   * @param Drupal\node\NodeInterface $node
    *   The node object.
    * @param $back_to_top
    *   An array containing the "back to top" link.

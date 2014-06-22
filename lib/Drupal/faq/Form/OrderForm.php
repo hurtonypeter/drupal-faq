@@ -29,6 +29,11 @@ class OrderForm extends ConfigFormBase {
    */
   public function buildForm(array $form, array &$form_state, $category = NULL) {
 
+    //get category id from route values
+    if(is_numeric(arg(1))) {
+      $category = arg(1);
+    }
+    
     $order = $date_order = '';
     $faq_settings = $this->config('faq.settings');
 
@@ -143,14 +148,14 @@ class OrderForm extends ConfigFormBase {
           '#default_value' => $i,
         );
       }
+      
+      $form['actions']['#type'] = 'actions';
+      $form['actions']['submit'] = array(
+        '#type' => 'submit',
+        '#value' => $this->t('Save order'),
+        '#button_type' => 'primary',
+      );
     }
-    
-    $form['actions']['#type'] = 'actions';
-    $form['actions']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => $this->t('Save order'),
-      '#button_type' => 'primary',
-    );
     
     return $form;
   }
@@ -159,23 +164,24 @@ class OrderForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, array &$form_state) {
+    if ($form_state['values']['op'] == t('Save order') && !empty($form_state['values']['order_no_cats'])) {
 
-    foreach ($form_state['values']['order_no_cats'] as $i => $faq) {
-      $nid = $faq['nid'];
-      $index = $faq['sort'];
-      db_merge('faq_weights')
-        ->fields(array(
-          'weight' => $index,
-        ))
-        ->key(array(
-          'tid' => $form_state['values']['faq_category'],
-          'nid' => $nid,
-        ))
-        ->execute();
+      foreach ($form_state['values']['order_no_cats'] as $i => $faq) {
+        $nid = $faq['nid'];
+        $index = $faq['sort'];
+        db_merge('faq_weights')
+          ->fields(array(
+            'weight' => $index,
+          ))
+          ->key(array(
+            'tid' => $form_state['values']['faq_category'],
+            'nid' => $nid,
+          ))
+          ->execute();
 
-      // If node translation module enabled, update order of the translation
-      // node counterparts.
-      // TODO: review this part
+        // If node translation module enabled, update order of the translation
+        // node counterparts.
+        // TODO: review this part
 //      if (module_exists('translation')) {
 //        $node = node_load($nid);
 //        if ($node->tnid) {
@@ -195,9 +201,10 @@ class OrderForm extends ConfigFormBase {
 //          }
 //        }
 //      }
-    }
+      }
 
-    parent::submitForm($form, $form_state);
+      parent::submitForm($form, $form_state);
+    }
   }
 
 }

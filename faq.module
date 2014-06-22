@@ -148,3 +148,17 @@ function template_preprocess_faq_page(&$variables) {
     $variables['faq_expand'] = false;
   }
 }
+
+/**
+ * Function set the rebuild of the form in the FAQ Settings - Weight tab.
+ *
+ * @param $form
+ *   Array, containing the form structure.
+ * @param &$form_state
+ *   The 'rebuild' key inside $form_state['rebuild'] structure, overrides the
+ *   'redirect' key: when it is set to TRUE, the form will be rebuilt from
+ *   scratch and displayed on screen.
+ */
+function faq_order_settings_choose_cat_form_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+}
