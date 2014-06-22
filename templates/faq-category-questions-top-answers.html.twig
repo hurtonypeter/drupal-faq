@@ -58,7 +58,7 @@
             <div>
         {% endif %}
         
-        {% if not answer_category_name and display_header %}
+        {% if not answer_category_name or display_header %}
             <!-- Include subcategories. -->
             {% if subcat_body_list|length > 0 %}
             {% for subcat_html in subcat_body_list %}
@@ -89,7 +89,7 @@
                             {{ answer_label }}
                         </strong>
                     {% endif %}
-                    {% node.body %}
+                    {{ node.body }}
                     {% if node.links is defined %}
                         {{ node.links }}
                     {% endif %}

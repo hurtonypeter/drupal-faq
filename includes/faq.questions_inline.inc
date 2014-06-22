@@ -6,6 +6,7 @@
  */
 
 use Drupal\faq\FaqHelper;
+use Drupal\faq\FaqViewer;
 use Drupal\Component\Utility\String;
 
 /**
@@ -24,8 +25,8 @@ function template_preprocess_faq_questions_inline(&$variables) {
   $links = $faq_settings->get('show_node_links');
 
   // Configure "back to top" link.
-  $this_page = $_GET['q'];
-  $back_to_top = FaqHelper::faq_init_back_to_top($this_page);
+  $this_page = current_path();
+  $back_to_top = FaqViewer::initBackToTop($this_page);
 
   // Configure labels.
   $variables['question_label'] = '';
@@ -38,9 +39,9 @@ function template_preprocess_faq_questions_inline(&$variables) {
   $nodes = array();
   $count = 0;
   foreach ($data as $node) {
-    $anchor = 'n' . $node->nid;
-    FaqHelper::faq_view_question($nodes[$count], $node, NULL, $anchor);
-    FaqHelper::faq_view_answer($nodes[$count], $node, $back_to_top, $teaser, $links);
+    $anchor = 'n' . $node->id();
+    FaqViewer::viewQuestion($nodes[$count], $node, NULL, $anchor);
+    FaqViewer::viewAnswer($nodes[$count], $node, $back_to_top, $teaser, $links);
     $count++;
   }
   $variables['use_teaser'] = $teaser;

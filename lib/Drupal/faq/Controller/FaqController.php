@@ -39,10 +39,11 @@ class FaqController extends ControllerBase {
    */
   public function faqPage($tid = 0, $faq_display = '', $category_display = '') {
     $faq_settings = \Drupal::config('faq.settings');
+    
+    $output = $output_answers = '';
 
     $build = array();
-
-    $output = $output_answers = '';
+    $build['#type'] = 'markup';
     $build['#attached']['css'] = array(
       drupal_get_path('module', 'faq') . '/css/faq.css'
     );
@@ -55,13 +56,17 @@ class FaqController extends ControllerBase {
 
     // Configure the breadcrumb trail.
     if (!empty($tid) && $current_term = Term::load($tid)) {
-      if (!\Drupal::service('path.alias_manager.cached')->getPathAlias(arg(0) . '/' . $tid) && $this->moduleHandler()->moduleExists('pathauto')) {
-        // TODO: pathauto is not exists in D8 yet
-      }
+      //if (!\Drupal::service('path.alias_manager.cached')->getPathAlias(arg(0) . '/' . $tid) && $this->moduleHandler()->moduleExists('pathauto')) {
+        //pathauto is not exists in D8 yet
+        //$alias = pathauto_create_alias('faq', 'insert', arg(0) . '/' . arg(1), array('term' => $current_term));
+        //if ($alias) {
+        //  drupal_goto($alias['alias']);
+        //}
+      //}
       // TODO: change to Drupal\Core\Path\PathMatcher::matchPath()
-      if (drupal_match_path($_GET['q'], 'faq-page/*')) {
-        $this->faq_set_breadcrumb($current_term);
-      }
+      //if (drupal_match_path($_GET['q'], 'faq-page/*')) {
+      //  $this->faq_set_breadcrumb($current_term);
+      //}
     }
 
     if (empty($faq_display)) {
@@ -77,8 +82,6 @@ class FaqController extends ControllerBase {
     if (!$this->moduleHandler()->moduleExists('taxonomy')) {
       $use_categories = FALSE;
     }
-
-    $faq_path = drupal_get_path('module', 'faq') . '/includes';
 
     if (($use_categories && $category_display == 'hide_qa') || $faq_display == 'hide_answer') {
       $build['#attached']['js'] = array(
@@ -135,28 +138,28 @@ class FaqController extends ControllerBase {
       $nids = $query->execute()->fetchCol();
       $data = Node::loadMultiple($nids);
       
+      $questions_to_render = array();
+      $questions_to_render['#data'] = $data;
+      
       // TODO: switch faq_display: change theme() calls
       switch ($faq_display) {
         case 'questions_top':
-          //$output = theme('faq_questions_top', array('data' => $data));
-          $questions_top = array();
-          $questions_top['#theme'] = 'faq_questions_top';
-          $questions_top['#data'] = $data;
-          $output = drupal_render($questions_top);
+          $questions_to_render['#theme'] = 'faq_questions_top';
           break;
 
         case 'hide_answer':
-          //$output = theme('faq_hide_answer', array('data' => $data));
+          $questions_to_render['#theme'] = 'faq_hide_answer';
           break;
 
         case 'questions_inline':
-          //$output = theme('faq_questions_inline', array('data' => $data));
+          $questions_to_render['#theme'] = 'faq_questions_inline';
           break;
 
         case 'new_page':
-          //$output = theme('faq_new_page', array('data' => $data));
+          $questions_to_render['#theme'] = 'faq_new_page';
           break;
       } // End of switch.
+      $output = drupal_render($questions_to_render);
     }
 
     // Categorize questions.
@@ -168,16 +171,22 @@ class FaqController extends ControllerBase {
         if ($term = Term::load($tid)) {
           $title = $faq_settings->get('title');
           if (arg(0) == 'faq-page' && is_numeric(arg(1))) {
-            $build['#title'] = ($title . ($title ? ' - ' : '') . $this->t($term->name));
+            $build['#title'] = ($title . ($title ? ' - ' : '') . $this->t($term->getName()));
           }
           $this->display_faq_by_category($faq_display, $category_display, $term, 0, $output, $output_answers);
-          //return theme('faq_page', array('content' => $output, 'answers' => $output_answers));
+          $to_render = array(
+            '#theme' => 'faq_page',
+            '#content' => $output,
+            '#answers' => $output_answers,
+          );
+          $build['#markup'] = drupal_render($to_render);
+          return $build;
         }
         else {
           throw new NotFoundHttpException();
         }
       }
-
+      /*
       $list_style = $faq_settings->get('category_listing');
       $vocabularies = Vocabulary::loadMultiple();
       $vocab_omit = $faq_settings->get('omit_vocabulary');
@@ -216,7 +225,7 @@ class FaqController extends ControllerBase {
       if ($category_display == "new_page") {
         // TODO: theme()
         // $output = theme('item_list', array('items' => $items, 'title' => NULL, 'type' => $list_style));
-      }
+      }*/
     }
 
     $faq_description = $faq_settings->get('description');
@@ -232,7 +241,7 @@ class FaqController extends ControllerBase {
       '#description' => $faq_description,
     );
     
-    $build['#type'] = 'markup';
+    
     $build['#markup'] = drupal_render($markup);
     
     return $build;
@@ -401,15 +410,17 @@ class FaqController extends ControllerBase {
    */
   private function display_faq_by_category($faq_display, $category_display, $term, $display_header, &$output, &$output_answers) {
     $default_sorting = \Drupal::config('faq.settings')->get('default_sorting');
-
+    
+    $term_id = $term->id();
+    
     $query = db_select('node', 'n');
-    $query->join('node_field_data', 'd', 'n.nid = d.nid');
-    $ti_alias = $query->innerJoin('taxonomy_index', 'ti', '(n.nid = %alias.nid');
-    $query->leftJoin('faq_weights', 'w', "%alias.tid = [$ti_alias].tid AND n.nid = %alias.nid");
+    $query->join('node_field_data', 'd', 'd.nid = n.nid');
+    $query->innerJoin('taxonomy_index', 'ti', 'n.nid = ti.nid');
+    $query->leftJoin('faq_weights', 'w', 'n.nid = w.nid');
     $query->fields('n', array('nid'))
       ->condition('n.type', 'faq')
       ->condition('d.status', 1)
-      ->condition("{$ti_alias}.tid", $term->tid)
+      ->condition("ti.tid", $term_id)
       ->addTag('node_access');
 
     $default_weight = 0;
@@ -438,7 +449,8 @@ class FaqController extends ControllerBase {
     // Handle indenting of categories.
     $depth = 0;
     if (!isset($term->depth)) {
-      $term->depth = 0;
+      $children = taxonomy_term_load_children($term->id());
+      $term->depth = count($children);
     }
     while ($depth < $term->depth) {
       $display_header = 1;
@@ -453,25 +465,36 @@ class FaqController extends ControllerBase {
       $faq_class = "faq-qa-hide";
     }
 
-    $faq_path = drupal_get_path('module', 'faq') . '/includes';
-
-    // TODO: implement theme()
+    $output_render = $output_answers_render = array(
+      '#data' => $data,
+      '#display_header' => $display_header,
+      '#category_display' => $category_display,
+      '#term' => $term,
+      '#class' => $faq_class,
+      '#parent_term' => $term,
+    );
+    
     switch ($faq_display) {
       case 'questions_top':
-        //$output .= theme('faq_category_questions_top', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
-        //$output_answers .= theme('faq_category_questions_top_answers', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+        $output_render['#theme'] = 'faq_category_questions_top';
+        $output .= drupal_render($output_render);
+        $output_answers_render['#theme'] = 'faq_category_questions_top_answers';
+        $output_answers .= drupal_render($output_answers_render);
         break;
 
       case 'hide_answer':
-        //$output .= theme('faq_category_hide_answer', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+        $output_render['#theme'] = 'faq_category_hide_answer';
+        $output .= drupal_render($output_render);
         break;
 
       case 'questions_inline':
-        //$output .= theme('faq_category_questions_inline', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+        $output_render['#theme'] = 'faq_category_questions_inline';
+        $output .= drupal_render($output_render);
         break;
 
       case 'new_page':
-        //$output .= theme('faq_category_new_page', array('data' => $data, 'display_header' => $display_header, 'category_display' => $category_display, 'term' => $term, 'class' => $faq_class, 'parent_term' => $term));
+        $output_render['#theme'] = 'faq_category_new_page';
+        $output .= drupal_render($output_render);
         break;
     }
     // Handle indenting of categories.

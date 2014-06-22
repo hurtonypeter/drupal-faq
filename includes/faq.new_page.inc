@@ -6,6 +6,7 @@
  */
 
 use Drupal\faq\FaqHelper;
+use Drupal\faq\FaqViewer;
 use Drupal\Component\Utility\String;
 
 /**
@@ -20,15 +21,22 @@ function template_preprocess_faq_new_page(&$variables) {
   $data = $variables['data'];
 
   foreach ($data as $node) {
-    $items[] = l($node->title, "node/$node->nid");
+    $node_id = $node->id();
+    $items[] = l($node->getTitle(), "node/$node_id");
   }
 
   $list_style = $faq_settings->get('question_listing');
   $variables['list_style'] = $list_style;
   $variables['list_items'] = $items;
+  
+  $item_list = array(
+    '#theme' => 'item_list',
+    '#title' => NULL,
+    '#list_type' => $list_style,
+    '#items' => $items,
+  );
 
-  //todo: change theme()
-  $variables['list'] = theme('item_list', array('items' => $items, 'title' => NULL, 'type' => $list_style, 'attributes' => array("class" => "faq-question-listing")));
+  $variables['list'] = drupal_render($item_list);
 }
 
 /**

@@ -38,8 +38,8 @@ class FaqHelper {
     }
 
     $children_count = 0;
-    foreach ($this->faqTaxonomyTermChildren($tid) as $child_term) {
-      $children_count += $this->faqTaxonomyTermCountNodes($child_term);
+    foreach (FaqHelper::faqTaxonomyTermChildren($tid) as $child_term) {
+      $children_count += FaqHelper::faqTaxonomyTermCountNodes($child_term);
     }
 
     return $count[$tid] + $children_count;
@@ -88,7 +88,7 @@ class FaqHelper {
   public static function faqGetChildCategoriesFaqs($term, $theme_function, $default_weight, $default_sorting, $category_display, $class, $parent_term = NULL) {
     $output = array();
 
-    $list = taxonomy_term_load_children($term->tid);
+    $list = taxonomy_term_load_children($term->id());
 
     if (!is_array($list)) {
       return '';
@@ -96,7 +96,7 @@ class FaqHelper {
     foreach ($list as $tid => $child_term) {
       $child_term->depth = $term->depth + 1;
 
-      if ($this->faqTaxonomyTermCountNodes($child_term->tid)) {
+      if (FaqHelper::faqTaxonomyTermCountNodes($child_term->id())) {
         $query = db_select('node', 'n');
         $query->join('node_field_data', 'd', 'n.nid = d.nid');
         $ti_alias = $query->innerJoin('taxonomy_index', 'ti', '(n.nid = %alias.nid)');
@@ -105,7 +105,7 @@ class FaqHelper {
           ->fields('n', array('nid'))
           ->condition('n.type', 'faq')
           ->condition('d.status', 1)
-          ->condition("{$ti_alias}.tid", $child_term->tid)
+          ->condition("{$ti_alias}.tid", $child_term->id())
           ->addTag('node_access');
 
         $default_weight = 0;
@@ -132,7 +132,16 @@ class FaqHelper {
         $data = Node::loadMultiple($nids);
 
         //TODO: change theme() 
-        //$output[] = theme($theme_function, array('data' => $data, 'display_header' => 1, 'category_display' => $category_display, 'term' => $child_term, 'class' => $class, 'parent_term' => $parent_term));
+        $to_render = array(
+          '#theme' => $theme_function,
+          '#data' => $data,
+          '#display_header' => 1,
+          '#category_display' => $category_display,
+          '#term' => $child_term,
+          '#class' => $class,
+          '#parent_term' => $parent_term,
+        );
+        $output[] = drupal_render($to_render);
       }
     }
 
