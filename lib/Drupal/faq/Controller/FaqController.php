@@ -186,7 +186,7 @@ class FaqController extends ControllerBase {
           throw new NotFoundHttpException();
         }
       }
-      /*
+      
       $list_style = $faq_settings->get('category_listing');
       $vocabularies = Vocabulary::loadMultiple();
       $vocab_omit = $faq_settings->get('omit_vocabulary');
@@ -213,7 +213,7 @@ class FaqController extends ControllerBase {
             switch ($category_display) {
               case 'hide_qa':
               case 'categories_inline':
-                if (FaqHelper::faqTaxonomyTermCountNodes($term->tid)) {
+                if (FaqHelper::faqTaxonomyTermCountNodes($term->id())) {
                   $this->display_faq_by_category($faq_display, $category_display, $term, 1, $output, $output_answers);
                 }
                 break;
@@ -223,9 +223,14 @@ class FaqController extends ControllerBase {
       }
 
       if ($category_display == "new_page") {
-        // TODO: theme()
-        // $output = theme('item_list', array('items' => $items, 'title' => NULL, 'type' => $list_style));
-      }*/
+        $item_list = array(
+          '#theme' => 'item_list',
+          '#items' => $items,
+          '#title' => NULL,
+          '#list_type' => $list_style,
+        );
+        $output = drupal_render($item_list);
+      }
     }
 
     $faq_description = $faq_settings->get('description');
@@ -240,8 +245,6 @@ class FaqController extends ControllerBase {
       '#answers' => $output_answers,
       '#description' => $faq_description,
     );
-    
-    
     $build['#markup'] = drupal_render($markup);
     
     return $build;
@@ -374,10 +377,10 @@ class FaqController extends ControllerBase {
     $breadcrumb = array();
     if ($faq_settings->get('custom_breadcrumbs')) {
       if ($this->moduleHandler()->moduleExists('taxonomy') && $term) {
-        $breadcrumb[] = l($this->t($term->name), 'faq-page/' . $term->tid);
-        while ($parents = taxonomy_term_load_parents($term->tid)) {
+        $breadcrumb[] = l($this->t($term->getName()), 'faq-page/' . $term->id());
+        while ($parents = taxonomy_term_load_parents($term->id())) {
           $term = array_shift($parents);
-          $breadcrumb[] = l($this->t($term->name), 'faq-page/' . $term->tid);
+          $breadcrumb[] = l($this->t($term->getName()), 'faq-page/' . $term->id());
         }
       }
       $breadcrumb[] = l($faq_settings->get('title'), 'faq-page');
@@ -515,9 +518,9 @@ class FaqController extends ControllerBase {
    *   Return a HTML formatted list of terms indented according to the term depth.
    */
   private function get_indented_faq_terms($vid, $tid) {
-    if ($this->moduleHandler()->moduleExists('pathauto')) {
+    //if ($this->moduleHandler()->moduleExists('pathauto')) {
       // pathauto does't exists in D8 yet
-    }
+    //}
 
     $faq_settings = \Drupal::config('faq.settings');
 
@@ -528,47 +531,51 @@ class FaqController extends ControllerBase {
     $tree = taxonomy_get_tree($vid, $tid, 1, TRUE);
 
     foreach ($tree as $term) {
-      $tree_count = FaqHelper::faqTaxonomyTermCountNodes($term->tid);
+      $term_id = $term->id();
+      $tree_count = FaqHelper::faqTaxonomyTermCountNodes($term_id);
 
       if ($tree_count) {
         // Get term description.
         $desc = '';
-        if (!empty($term->description)) {
+        $term_description = $term->getDescription();
+        if (!empty($term_description)) {
           $desc = '<div class="faq-qa-description">';
-          $desc .= check_markup($this->t($term->description)) . "</div>";
+          $desc .= check_markup($this->t($term_description)) . "</div>";
         }
 
+        
         $query = db_select('node', 'n');
         $query->join('node_field_data', 'd', 'n.nid = d.nid');
-        $ti_alias = $query->innerJoin('taxonomy_index', 'ti', '(n.nid = %alias.nid)');
+        $query->innerJoin('taxonomy_index', 'ti', 'n.nid = ti.nid');
         $term_node_count = $query->condition('d.status', 1)
           ->condition('n.type', 'faq')
-          ->condition("{$ti_alias}.tid", $term->tid)
+          ->condition("ti.tid", $term_id)
           ->addTag('node_access')
           ->countQuery()
           ->execute()
           ->fetchField();
 
+        
         if ($term_node_count > 0) {
-          $path = "faq-page/$term->tid";
+          $path = "faq-page/$term_id";
 
-          if (!\Drupal::service('path.alias_manager.cached')->getPathAlias(arg(0) . '/' . $tid) && $this->moduleHandler()->moduleExists('pathauto')) {
-            // TODO: pathauto is not exists in D8 yet
-          }
+          // pathauto is not exists in D8 yet
+          //if (!\Drupal::service('path.alias_manager.cached')->getPathAlias(arg(0) . '/' . $tid) && $this->moduleHandler()->moduleExists('pathauto')) {
+          //}
 
           if ($display_faq_count) {
             $count = $term_node_count;
             if ($hide_child_terms) {
               $count = $tree_count;
             }
-            $cur_item = l($this->t($term->name), $path) . " ($count) " . $desc;
+            $cur_item = l($this->t($term->getName()), $path) . " ($count) " . $desc;
           }
           else {
-            $cur_item = l($this->t($term->name), $path) . $desc;
+            $cur_item = l($this->t($term->getName()), $path) . $desc;
           }
         }
         else {
-          $cur_item = String::checkPlain($this->t($term->name)) . $desc;
+          $cur_item = String::checkPlain($this->t($term->getName())) . $desc;
         }
         if (!empty($term_image)) {
           $cur_item .= '<div class="clear-block"></div>';
@@ -576,7 +583,7 @@ class FaqController extends ControllerBase {
 
         $term_items = array();
         if (!$hide_child_terms) {
-          $term_items = $this->get_indented_faq_terms($vid, $term->tid);
+          $term_items = $this->get_indented_faq_terms($vid, $term_id);
         }
         $items[] = array(
           "data" => $cur_item,

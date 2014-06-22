@@ -160,10 +160,10 @@ class FaqHelper {
   public static function faqViewChildCategoryHeaders($term) {
 
     $child_categories = array();
-    $list = taxonomy_term_load_children($term->tid);
+    $list = taxonomy_term_load_children($term->id());
 
     foreach ($list as $tid => $child_term) {
-      $term_node_count = $this->faqTaxonomyTermCountNodes($child_term->tid);
+      $term_node_count = $this->faqTaxonomyTermCountNodes($child_term->id());
       if ($term_node_count) {
 
         // Get taxonomy image.
@@ -172,9 +172,10 @@ class FaqHelper {
         //if (module_exists('taxonomy_image')) {
         //  $term_image = taxonomy_image_display($child_term->tid, array('class' => 'faq-tax-image'));
         //}
-
-        $term_vars['link'] = l(t($child_term->name), "faq-page/$child_term->tid");
-        $term_vars['description'] = check_markup(t($child_term->description));
+        
+        $child_term_id = $child_term->id();
+        $term_vars['link'] = l(t($child_term->getName()), "faq-page/$child_term_id");
+        $term_vars['description'] = check_markup(t($child_term->getDescription()));
         $term_vars['count'] = $term_node_count;
         $term_vars['term_image'] = $term_image;
         $child_categories[] = $term_vars;
