@@ -51,9 +51,10 @@ function template_preprocess_faq_category_new_page(&$variables) {
   $data = $variables['data'];
   $category_display = $variables['category_display'];
   $term = $variables['term'];
+  $term_id = $term->id();
   $parent_term = $variables['parent_term'];
   $class = $variables['class'];
-  $this_page = $_GET['q'];
+  $this_page = current_path();
 
   // Fetch configuration.
   $display_faq_count = $faq_settings->get('count');
@@ -72,7 +73,7 @@ function template_preprocess_faq_category_new_page(&$variables) {
   // Force some settings in case we're processing a special faq question list
   // created by a custom call to faq_page().
   elseif (!empty($parent_term)) {
-    $get_child_terms = $parent_term->tid;
+    $get_child_terms = $parent_term->id();
     $show_term_page_children = TRUE;
   }
 
@@ -85,7 +86,7 @@ function template_preprocess_faq_category_new_page(&$variables) {
   // Get number of questions, and account for hidden sub-categories.
   $count = 0;
   if ($display_faq_count && $hide_child_terms) {
-    $count = FaqHelper::faqTaxonomyTermCountNodes($term->tid);
+    $count = FaqHelper::faqTaxonomyTermCountNodes($term_id);
   }
   $variables['display_faq_count'] = $display_faq_count;
 
@@ -99,14 +100,14 @@ function template_preprocess_faq_category_new_page(&$variables) {
   // Configure header.
   $variables['category_depth'] = $term->depth;
   if ($category_display == 'hide_qa') {
-    $variables['header_title'] = l($term->name, "faq/$term->tid");
+    $variables['header_title'] = l($term->getName(), "faq/$term_id");
   }
   else {
-    $variables['header_title'] = String::checkPlain($term->name);
+    $variables['header_title'] = String::checkPlain($term->getName());
   }
 
   // Configure category description.
-  $variables['description'] = check_markup($term->description);
+  $variables['description'] = $term->getDescription();
 
   // Get list of sub-categories if necessary.
   $child_categories = array();
@@ -117,7 +118,7 @@ function template_preprocess_faq_category_new_page(&$variables) {
   $variables['subcat_list_style'] = $faq_settings->get('category_listing');
 
   // Configure class (faq-qa or faq-qa-hide).
-  if ($get_child_terms == $term->tid) {
+  if ($get_child_terms == $term_id) {
     $variables['container_class'] = 'faq-qa';
   }
   else {
@@ -141,7 +142,8 @@ function template_preprocess_faq_category_new_page(&$variables) {
     if (!$hide_child_terms) {
       $count++;
     }
-    $nodes[] = l($node->title, "node/$node->nid");
+    $node_id = $node->id();
+    $nodes[] = l($node->getTitle(), "node/$node_id");
   }
   $variables['question_list'] = $nodes;
   $variables['question_list_style'] = $faq_settings->get('question_listing');
