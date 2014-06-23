@@ -63,10 +63,12 @@ class FaqController extends ControllerBase {
       //  drupal_goto($alias['alias']);
       //}
       //}
-      // TODO: change to Drupal\Core\Path\PathMatcher::matchPath()
-      //if (drupal_match_path($_GET['q'], 'faq-page/*')) {
-      //  $this->_setFaqBreadcrumb($current_term);
-      //}
+      // drupal_match_path() is now deprecated, should 
+      // use  \Drupal\Core\Path\PathMatcherInterface::matchPath()
+      // accordint to the documentation, but it's not exists
+      if (drupal_match_path(current_path(), 'faq-page/*')) {
+        $this->_setFaqBreadcrumb($current_term);
+      }
     }
 
     if (empty($faq_display)) {
@@ -363,7 +365,9 @@ class FaqController extends ControllerBase {
    *   The taxonomy term object.
    */
   private function _setFaqBreadcrumb($term = NULL) {
-    $faq_settings = \Drupal::config('faq.settings');
+    $faq_settings = $this->config('faq.settings');
+    $site_settings = $this->config('system.site');
+    $breadcrumbManager = new \Drupal\Core\Breadcrumb\BreadcrumbManager($this->moduleHandler());
 
     $breadcrumb = array();
     if ($faq_settings->get('custom_breadcrumbs')) {
@@ -375,13 +379,13 @@ class FaqController extends ControllerBase {
         }
       }
       $breadcrumb[] = l($faq_settings->get('title'), 'faq-page');
-      $breadcrumb[] = l(t('Home'), NULL, array('attributes' => array('title' => variable_get('site_name', ''))));
-      $breadcrumb = array_reverse($breadcrumb);
-      return \Drupal\Core\Breadcrumb\BreadcrumbManager::build($breadcrumb);
+      $breadcrumb[] = l(t('Home'), NULL, array('attributes' => array('title' => $site_settings->get('name'))));
+      $breadcrumb = array_reverse($breadcrumb);var_dump($breadcrumb);
+      return $breadcrumbManager->build($breadcrumb);
     }
     // This is also used to set the breadcrumbs in the faq_preprocess_page()
     // so we need to return a valid trail.
-    return \Drupal\Core\Breadcrumb\BreadcrumbManager::build($breadcrumb);
+    return $breadcrumbManager->build($breadcrumb);
   }
 
   /**
