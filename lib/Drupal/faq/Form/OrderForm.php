@@ -28,12 +28,12 @@ class OrderForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, array &$form_state, $category = NULL) {
-    
+
     //get category id from route values
-    if(is_numeric(arg(1))) {
+    if (is_numeric(arg(1))) {
       $category = arg(1);
     }
-    
+
     $order = $date_order = '';
     $faq_settings = $this->config('faq.settings');
 
@@ -124,7 +124,7 @@ class OrderForm extends ConfigFormBase {
           ->orderBy('d.sticky', 'DESC')
           ->orderBy('d.created', $default_sorting == 'DESC' ? 'DESC' : 'ASC');
       }
-      
+
       $options = $query->execute()->fetchAll();
 
       $form['weight']['faq_category'] = array(
@@ -148,7 +148,7 @@ class OrderForm extends ConfigFormBase {
           '#default_value' => $i,
         );
       }
-      
+
       $form['actions']['#type'] = 'actions';
       $form['actions']['submit'] = array(
         '#type' => 'submit',
@@ -156,7 +156,7 @@ class OrderForm extends ConfigFormBase {
         '#button_type' => 'primary',
       );
     }
-    
+
     return $form;
   }
 

@@ -97,7 +97,6 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   //if (module_exists('taxonomy_image')) {
   //  $variables['term_image'] = taxonomy_image_display($term->tid, array('class' => 'faq-tax-image'));
   //}
-
   // Configure header.
   $variables['category_depth'] = $term->depth;
   $variables['category_name'] = String::checkPlain($term->getName());
@@ -153,4 +152,3 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   $variables['nodes'] = $nodes;
   $variables['question_count'] = $count;
 }
-

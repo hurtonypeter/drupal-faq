@@ -54,16 +54,10 @@ class FaqController extends ControllerBase {
       $tid = 0;
     }
 
-    if (empty($faq_display)) {
-      $faq_display = $faq_settings->get('display');
-    }
+    $faq_display = $faq_settings->get('display');
     $use_categories = $faq_settings->get('use_categories');
-    if (!empty($category_display)) {
-      $use_categories = TRUE;
-    }
-    else {
-      $category_display = $faq_settings->get('category_display');
-    }
+    $category_display = $faq_settings->get('category_display');
+    // if taxonomy doesn't installed, do not use categories
     if (!$this->moduleHandler()->moduleExists('taxonomy')) {
       $use_categories = FALSE;
     }

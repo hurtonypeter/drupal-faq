@@ -13,7 +13,7 @@ use Drupal\node\Entity\Node;
  * Contains static helper functions for FAQ module.
  */
 class FaqHelper {
-  
+
   /**
    * Function to set up the FAQ breadcrumbs for a given taxonomy term.
    *
@@ -88,8 +88,6 @@ class FaqHelper {
 
     return isset($children[$tid]) ? $children[$tid] : array();
   }
-
-  
 
   /**
    * Helper function for retrieving the sub-categories faqs.
@@ -173,7 +171,6 @@ class FaqHelper {
     return $output;
   }
 
-
   /**
    * Helper function to setup the list of sub-categories for the header.
    *
@@ -197,7 +194,7 @@ class FaqHelper {
         //if (module_exists('taxonomy_image')) {
         //  $term_image = taxonomy_image_display($child_term->tid, array('class' => 'faq-tax-image'));
         //}
-        
+
         $child_term_id = $child_term->id();
         $term_vars['link'] = l(t($child_term->getName()), "faq-page/$child_term_id");
         $term_vars['description'] = check_markup(t($child_term->getDescription()));

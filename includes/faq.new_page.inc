@@ -28,7 +28,7 @@ function template_preprocess_faq_new_page(&$variables) {
   $list_style = $faq_settings->get('question_listing');
   $variables['list_style'] = $list_style;
   $variables['list_items'] = $items;
-  
+
   $item_list = array(
     '#theme' => 'item_list',
     '#title' => NULL,
@@ -45,7 +45,6 @@ function template_preprocess_faq_new_page(&$variables) {
  * @param &$variables
  *   Array reference of arguments given to the theme() function.
  */
-
 function template_preprocess_faq_category_new_page(&$variables) {
   $faq_settings = \Drupal::config('faq.settings');
   $data = $variables['data'];
@@ -96,7 +95,6 @@ function template_preprocess_faq_category_new_page(&$variables) {
   //if (module_exists('taxonomy_image')) {
   //  $variables['term_image'] = taxonomy_image_display($term->tid, array('class' => 'faq-tax-image'));
   //}
-
   // Configure header.
   $variables['category_depth'] = $term->depth;
   if ($category_display == 'hide_qa') {
@@ -149,4 +147,3 @@ function template_preprocess_faq_category_new_page(&$variables) {
   $variables['question_list_style'] = $faq_settings->get('question_listing');
   $variables['question_count'] = $count;
 }
-
