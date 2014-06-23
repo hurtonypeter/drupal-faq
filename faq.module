@@ -7,6 +7,8 @@
  */
 
 use Drupal\Core\Render\Element;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\faq\FaqHelper;
 
 /**
  * Implements hook_help().
@@ -176,4 +178,20 @@ function template_preprocess_faq_page(&$variables) {
  */
 function faq_order_settings_choose_cat_form_submit($form, &$form_state) {
   $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Implements template_preprocess_page().
+ * 
+ * Overrider breadcrumbs for faq pages.
+ */
+function faq_preprocess_page(&$variables){
+  $faq_settings = \Drupal::config('faq.settings');
+  $use_categories = $faq_settings->get('use_categories');
+  if (arg(0) == 'faq-page' && $use_categories && is_numeric(arg(1)) && $current_term = Term::load(arg(1))) {
+    $breadcrumb = FaqHelper::setFaqBreadcrumb($current_term);
+    if (!empty($breadcrumb)) {
+      $variables['breadcrumb']['#breadcrumb'] = $breadcrumb;
+    }
+  }
 }

@@ -13,6 +13,32 @@ use Drupal\node\Entity\Node;
  * Contains static helper functions for FAQ module.
  */
 class FaqHelper {
+  
+  /**
+   * Function to set up the FAQ breadcrumbs for a given taxonomy term.
+   *
+   * @param $term
+   *   The taxonomy term object.
+   */
+  public static function setFaqBreadcrumb($term = NULL) {
+    $faq_settings = \Drupal::config('faq.settings');
+    $site_settings = \Drupal::config('system.site');
+
+    $breadcrumb = array();
+    if ($faq_settings->get('custom_breadcrumbs')) {
+      if (\Drupal::moduleHandler()->moduleExists('taxonomy') && $term) {
+        $breadcrumb[] = l(t($term->getName()), 'faq-page/' . $term->id());
+        while ($parents = taxonomy_term_load_parents($term->id())) {
+          $term = array_shift($parents);
+          $breadcrumb[] = l(t($term->getName()), 'faq-page/' . $term->id());
+        }
+      }
+      $breadcrumb[] = l($faq_settings->get('title'), 'faq-page');
+      $breadcrumb[] = l(t('Home'), NULL, array('attributes' => array('title' => $site_settings->get('name'))));
+      $breadcrumb = array_reverse($breadcrumb);
+    }
+    return $breadcrumb;
+  }
 
   /**
    * Count number of nodes for a term and its children.

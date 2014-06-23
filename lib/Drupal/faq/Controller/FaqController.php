@@ -54,23 +54,6 @@ class FaqController extends ControllerBase {
       $tid = 0;
     }
 
-    // Configure the breadcrumb trail.
-    if (!empty($tid) && $current_term = Term::load($tid)) {
-      //if (!\Drupal::service('path.alias_manager.cached')->getPathAlias(arg(0) . '/' . $tid) && $this->moduleHandler()->moduleExists('pathauto')) {
-      //pathauto is not exists in D8 yet
-      //$alias = pathauto_create_alias('faq', 'insert', arg(0) . '/' . arg(1), array('term' => $current_term));
-      //if ($alias) {
-      //  drupal_goto($alias['alias']);
-      //}
-      //}
-      // drupal_match_path() is now deprecated, should 
-      // use  \Drupal\Core\Path\PathMatcherInterface::matchPath()
-      // accordint to the documentation, but it's not exists
-      if (drupal_match_path(current_path(), 'faq-page/*')) {
-        $this->_setFaqBreadcrumb($current_term);
-      }
-    }
-
     if (empty($faq_display)) {
       $faq_display = $faq_settings->get('display');
     }
@@ -357,36 +340,6 @@ class FaqController extends ControllerBase {
   /*   * ***************************************************************
    * PRIVATE HELPER FUCTIONS
    * *************************************************************** */
-
-  /**
-   * Function to set up the FAQ breadcrumbs for a given taxonomy term.
-   *
-   * @param $term
-   *   The taxonomy term object.
-   */
-  private function _setFaqBreadcrumb($term = NULL) {
-    $faq_settings = $this->config('faq.settings');
-    $site_settings = $this->config('system.site');
-    $breadcrumbManager = new \Drupal\Core\Breadcrumb\BreadcrumbManager($this->moduleHandler());
-
-    $breadcrumb = array();
-    if ($faq_settings->get('custom_breadcrumbs')) {
-      if ($this->moduleHandler()->moduleExists('taxonomy') && $term) {
-        $breadcrumb[] = l($this->t($term->getName()), 'faq-page/' . $term->id());
-        while ($parents = taxonomy_term_load_parents($term->id())) {
-          $term = array_shift($parents);
-          $breadcrumb[] = l($this->t($term->getName()), 'faq-page/' . $term->id());
-        }
-      }
-      $breadcrumb[] = l($faq_settings->get('title'), 'faq-page');
-      $breadcrumb[] = l(t('Home'), NULL, array('attributes' => array('title' => $site_settings->get('name'))));
-      $breadcrumb = array_reverse($breadcrumb);var_dump($breadcrumb);
-      return $breadcrumbManager->build($breadcrumb);
-    }
-    // This is also used to set the breadcrumbs in the faq_preprocess_page()
-    // so we need to return a valid trail.
-    return $breadcrumbManager->build($breadcrumb);
-  }
 
   /**
    * Display FAQ questions and answers filtered by category.
