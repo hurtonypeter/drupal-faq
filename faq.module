@@ -9,6 +9,21 @@
 use Drupal\Core\Render\Element;
 
 /**
+ * Implements hook_help().
+ */
+function faq_help($route_name, \Symfony\Component\HttpFoundation\Request $request) {
+  $output = '';
+  switch ($route_name) {
+    case 'help.page.faq':
+      $output .= '<p>' . t("This module allows users with the 'administer faq' permission to create question and answer pairs which will be displayed on the faq page.  The faq page is automatically generated from the FAQ nodes configured and the layout of this page can be modified on the settings page.  Users will need the 'view faq page' permission in order to view the faq page.") . '</p>' .
+        '<p>' . t("To create a question and answer, the user must create a 'FAQ' node (Create content >> FAQ).  This screen allows the user to edit the question and answer text.  If the 'Taxonomy' module is enabled and there are some terms configured for the FAQ node type, it will also be possible to put the questions into different categories when editing.") . '</p>' .
+        '<p>' . t("The 'Frequently Asked Questions' settings configuration screen will allow users with 'administer faq' permissions to specify different layouts of the questions and answers.") . '</p>' .
+        '<p>' . t("All users with 'view faq page' permissions will be able to view the generated FAQ page.") . '</p>';
+      return $output;
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function faq_permission(){
