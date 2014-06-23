@@ -86,7 +86,6 @@ class FaqViewer {
    */
   public static function viewAnswer(&$data, \Drupal\node\NodeInterface $node, $back_to_top, $teaser, $links) {
 
-    // TODO: add back to top link
     // TODO: hide 'submitted by ... on ...'
     $view_mode = $teaser ? 'teaser' : 'full';
 
@@ -97,6 +96,8 @@ class FaqViewer {
     $node_build = node_view($node, $view_mode);
 
     $content = drupal_render($node_build);
+    
+    $content .= $back_to_top;
 
     $data['body'] = $content;
   }
@@ -112,19 +113,18 @@ class FaqViewer {
    *   An array containing the "back to top" link.
    */
   public static function initBackToTop($path) {
-
+    
     $faq_settings = \Drupal::config('faq.settings');
 
     $back_to_top = array();
     $back_to_top_text = trim($faq_settings->get('back_to_top'));
     if (!empty($back_to_top_text)) {
-      $back_to_top = array(
-        'title' => String::checkPlain($back_to_top_text),
-        'href' => $path,
+      $options = array(
         'attributes' => array('title' => t('Go back to the top of the page.')),
-        'fragment' => 'top',
         'html' => TRUE,
+        'fragment' => 'top',
       );
+      $back_to_top = l(String::checkPlain($back_to_top_text), $path, $options);
     }
 
     return $back_to_top;
