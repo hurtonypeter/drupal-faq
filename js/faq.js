@@ -135,7 +135,6 @@
     
     Drupal.behaviors.initFaqModule = {
         attach: function (context, settings) {
-            console.log(settings);
             // Hide/show answer for a question.
             var faq_hide_qa_accordion = settings.hide_qa_accordion;
             $('div.faq-dd-hide-answer', context).addClass("collapsible collapsed");

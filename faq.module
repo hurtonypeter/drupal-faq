@@ -123,14 +123,14 @@ function template_preprocess_faq_draggable_question_order_table(&$variables){
     'table_id' => 'question-sort',
     'action' => 'order',
     'relationship' => 'sibling',
-    'group' => 'element-group',
-    'hidden' => '3',
+    'group' => 'sort',
   );
   $header = array('', t('Question'), '', t('Sort'));
   $rows = array();
   foreach (Element::children($form) as $key) {
     // Add class to group weight fields for drag and drop.
     $form[$key]['sort']['#attributes']['class'] = array('sort');
+    $form[$key]['nid']['#attributes']['class'] = array('hidden-nid');
     $row = array('');
     $row[] = drupal_render($form[$key]['title']);
     $row[] = drupal_render($form[$key]['nid']);
@@ -151,6 +151,7 @@ function template_preprocess_faq_draggable_question_order_table(&$variables){
     ),
   );
   drupal_attach_tabledrag($table, $options);
+  
   $variables['order_table'] = $table;
 }
 
