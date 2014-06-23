@@ -10,3 +10,19 @@ faq.admin:
     title: 'General'
     route_name: faq.faq-admin
     base_route: system.admin_config_content
+faq.faq-page:
+    title: 'List'
+    route_name: faq.faq-page
+    base_route: faq.faq-page
+faq.faq-order:
+    title: 'Order'
+    route_name: faq.faq-page.order
+    base_route: faq.faq-page
+faq.category-faq-page:
+    title: 'List'
+    route_name: faq.faq-page-category
+    base_route: faq.faq-page-category
+faq.category-faq-order:
+    title: 'Order'
+    route_name: faq.faq-page.order-category
+    base_route: faq.faq-page-category

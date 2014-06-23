@@ -229,7 +229,7 @@ class FaqController extends ControllerBase {
    * @return
    *   The form code, before being converted to HTML format.
    */
-  public function orderPage($category = NULL) {
+  public function orderPage($tid = NULL) {
 
     $faq_settings = \Drupal::config('faq.settings');
     $build = array();

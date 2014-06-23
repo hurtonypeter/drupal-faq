@@ -20,15 +20,15 @@ faq.faq-page.order:
         _title: 'Order'
         _content: 'Drupal\faq\Controller\FaqController::orderPage'
     requirements:
-        _permission: 'view faq page'
+        _permission: 'administer faq order'
 
 faq.faq-page.order-category:
-    path: '/faq-page/{category}/order'
+    path: '/faq-page/{tid}/order'
     defaults:
         _title: 'Order'
         _content: 'Drupal\faq\Controller\FaqController::orderPage'
     requirements:
-        _permission: 'view faq page'
+        _permission: 'administer faq order'
 
 faq.faq-admin:
     path: '/admin/config/content/faq'
