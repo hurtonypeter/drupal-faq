@@ -65,7 +65,7 @@ class FaqController extends ControllerBase {
       //}
       // TODO: change to Drupal\Core\Path\PathMatcher::matchPath()
       //if (drupal_match_path($_GET['q'], 'faq-page/*')) {
-      //  $this->setFaqBreadcrumb($current_term);
+      //  $this->_setFaqBreadcrumb($current_term);
       //}
     }
 
@@ -171,7 +171,7 @@ class FaqController extends ControllerBase {
           if (arg(0) == 'faq-page' && is_numeric(arg(1))) {
             $build['#title'] = ($title . ($title ? ' - ' : '') . $this->t($term->getName()));
           }
-          $this->displayFaqByCategory($faq_display, $category_display, $term, 0, $output, $output_answers);
+          $this->_displayFaqByCategory($faq_display, $category_display, $term, 0, $output, $output_answers);
           $to_render = array(
             '#theme' => 'faq_page',
             '#content' => $output,
@@ -196,7 +196,7 @@ class FaqController extends ControllerBase {
         }
 
         if ($category_display == "new_page") {
-          $vocab_items = $this->getIndentedFaqTerms($vid, 0);
+          $vocab_items = $this->_getIndentedFaqTerms($vid, 0);
           $items = array_merge($items, $vocab_items);
         }
         // Not a new page.
@@ -212,7 +212,7 @@ class FaqController extends ControllerBase {
               case 'hide_qa':
               case 'categories_inline':
                 if (FaqHelper::taxonomyTermCountNodes($term->id())) {
-                  $this->displayFaqByCategory($faq_display, $category_display, $term, 1, $output, $output_answers);
+                  $this->_displayFaqByCategory($faq_display, $category_display, $term, 1, $output, $output_answers);
                 }
                 break;
             }
@@ -221,7 +221,7 @@ class FaqController extends ControllerBase {
       }
 
       if ($category_display == "new_page") {
-        $output = $this->renderCategoriesToList($items, $list_style);
+        $output = $this->_renderCategoriesToList($items, $list_style);
       }
     }
 
@@ -362,7 +362,7 @@ class FaqController extends ControllerBase {
    * @param $term
    *   The taxonomy term object.
    */
-  private function setFaqBreadcrumb($term = NULL) {
+  private function _setFaqBreadcrumb($term = NULL) {
     $faq_settings = \Drupal::config('faq.settings');
 
     $breadcrumb = array();
@@ -402,7 +402,7 @@ class FaqController extends ControllerBase {
    *   Reference which holds the answers from the FAQ, when showing questions
    *   on top.
    */
-  private function displayFaqByCategory($faq_display, $category_display, $term, $display_header, &$output, &$output_answers) {
+  private function _displayFaqByCategory($faq_display, $category_display, $term, $display_header, &$output, &$output_answers) {
     $default_sorting = \Drupal::config('faq.settings')->get('default_sorting');
 
     $term_id = $term->id();
@@ -508,7 +508,7 @@ class FaqController extends ControllerBase {
    * @return
    *   Return a HTML formatted list of terms indented according to the term depth.
    */
-  private function getIndentedFaqTerms($vid, $tid) {
+  private function _getIndentedFaqTerms($vid, $tid) {
     //if ($this->moduleHandler()->moduleExists('pathauto')) {
     // pathauto does't exists in D8 yet
     //}
@@ -573,7 +573,7 @@ class FaqController extends ControllerBase {
 
         $term_items = array();
         if (!$hide_child_terms) {
-          $term_items = $this->getIndentedFaqTerms($vid, $term_id);
+          $term_items = $this->_getIndentedFaqTerms($vid, $term_id);
         }
         $items[] = array(
           "items" => $cur_item,
@@ -597,14 +597,14 @@ class FaqController extends ControllerBase {
    * @return string
    *   HTML formatted output.
    */
-  private function renderCategoriesToList($items, $list_style, $first = 0) {
+  private function _renderCategoriesToList($items, $list_style, $first = 0) {
     $output = '';
     $first_iter = array();
 
     foreach ($items as $item) {
       $pre = '';
       if (!empty($item['children'])) {
-        $pre = $this->renderCategoriesToList($item['children'], $list_style, $first + 1);
+        $pre = $this->_renderCategoriesToList($item['children'], $list_style, $first + 1);
       }
       $render = array(
         '#theme' => 'item_list',
