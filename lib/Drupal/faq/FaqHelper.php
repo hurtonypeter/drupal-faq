@@ -185,7 +185,7 @@ class FaqHelper {
     $list = taxonomy_term_load_children($term->id());
 
     foreach ($list as $tid => $child_term) {
-      $term_node_count = $this->taxonomyTermCountNodes($child_term->id());
+      $term_node_count = FaqHelper::taxonomyTermCountNodes($child_term->id());
       if ($term_node_count) {
 
         // Get taxonomy image.
@@ -197,7 +197,7 @@ class FaqHelper {
 
         $child_term_id = $child_term->id();
         $term_vars['link'] = l(t($child_term->getName()), "faq-page/$child_term_id");
-        $term_vars['description'] = check_markup(t($child_term->getDescription()));
+        $term_vars['description'] = t($child_term->getDescription());
         $term_vars['count'] = $term_node_count;
         $term_vars['term_image'] = $term_image;
         $child_categories[] = $term_vars;
