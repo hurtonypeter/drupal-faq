@@ -527,7 +527,7 @@ class FaqController extends ControllerBase {
           $term_items = $this->_getIndentedFaqTerms($vid, $term_id);
         }
         $items[] = array(
-          "items" => $cur_item,
+          "item" => $cur_item,
           "children" => $term_items,
         );
       }
@@ -543,47 +543,28 @@ class FaqController extends ControllerBase {
    *   The structured array made by getIntendedTerms function
    * @param string $list_style
    *   List style type: ul or ol.
-   * @param int $first
-   *   Default value is 0, it's used for only to controll the recursive iteration.
    * @return string
    *   HTML formatted output.
    */
-  private function _renderCategoriesToList($items, $list_style, $first = 0) {
-    $output = '';
-    $first_iter = array();
-
+  private function _renderCategoriesToList($items, $list_style) {
+    
+    $list = array();
+    
     foreach ($items as $item) {
       $pre = '';
       if (!empty($item['children'])) {
-        $pre = $this->_renderCategoriesToList($item['children'], $list_style, $first + 1);
+        $pre = $this->_renderCategoriesToList($item['children'], $list_style);
       }
-      $render = array(
-        '#theme' => 'item_list',
-        '#items' => array($item['items'] . $pre),
-        '#list_style' => $list_style,
-      );
-      if ($first == 0) {
-        $output .= drupal_render($render);
-      }
-      elseif ($first == 1) {
-        $first_iter [] = $item['items'] . $pre;
-      }
-      else {
-        $first_iter[] = drupal_render($render);
-      }
+      $list[] = $item['item'] . $pre;
     }
-
-    if (!$first) {
-      return $output;
-    }
-    else {
-      $render_first = array(
-        '#theme' => 'item_list',
-        '#items' => $first_iter,
-        '#list_style' => $list_style,
-      );
-      return drupal_render($render_first);
-    }
+    
+    $render = array(
+      '#theme' => 'item_list',
+      '#items' => $list,
+      '#list_style' => $list_style,
+    );
+    
+    return drupal_render($render);
   }
 
 }
