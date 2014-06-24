@@ -91,11 +91,14 @@ class QuestionsForm extends ConfigFormBase {
       '#default_value' => $faq_settings->get('question_length')
     );
 
-    $form['faq_questions_misc']['faq_question_long_form'] = array(
-      '#type' => 'checkbox',
-      '#title' => $this->t('Allow long question text to be configured'),
-      '#default_value' => $faq_settings->get('question_long_form')
-    );
+    // TODO: implement it if the necessary hook is complete
+    // see https://api.drupal.org/api/drupal/core!modules!node!node.api.php/group/node_api_hooks/8
+    // "Preparing a node for editing" section
+    //$form['faq_questions_misc']['faq_question_long_form'] = array(
+    //  '#type' => 'checkbox',
+    //  '#title' => $this->t('Allow long question text to be configured'),
+    //  '#default_value' => $faq_settings->get('question_long_form')
+    //);
 
     $form['faq_questions_misc']['faq_hide_qa_accordion'] = array(
       '#type' => 'checkbox',
