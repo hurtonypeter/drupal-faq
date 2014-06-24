@@ -23,8 +23,6 @@ function template_preprocess_faq_questions_top(&$variables) {
 
   // Fetch configuration.
   $teaser = $faq_settings->get('use_teaser');
-  $links = $faq_settings->get('show_node_links');
-  $disable_node_links = $faq_settings->get('disable_node_links');
 
   // Configure labels.
   $variables['question_label'] = '';
@@ -34,9 +32,7 @@ function template_preprocess_faq_questions_top(&$variables) {
     $variables['answer_label'] = String::checkPlain($faq_settings->get('answer_label'));
   }
 
-  // Configure "back to top" link.
   $this_page = current_path();
-  $back_to_top = FaqViewer::initBackToTop($this_page);
 
   // Loop through results.
   $questions = array();
@@ -47,7 +43,7 @@ function template_preprocess_faq_questions_top(&$variables) {
     $anchor = 'n' . $node->id();
     $questions[$key] = l($node->getTitle(), $this_page, array('fragment' => $anchor));
     FaqViewer::viewQuestion($answers[$key], $node, NULL, $anchor);
-    FaqViewer::viewAnswer($answers[$key], $node, $back_to_top, $teaser, $links);
+    FaqViewer::viewAnswer($answers[$key], $node, $teaser);
     $key++;
   }
   $variables['limit'] = $key;
@@ -84,8 +80,6 @@ function template_preprocess_faq_category_questions_top(&$variables) {
 
   // Fetch configuration.
   $teaser = $faq_settings->get('use_teaser');
-  $links = $faq_settings->get('show_node_links');
-  $disable_node_links = $faq_settings->get('disable_node_links');
   $display_faq_count = $faq_settings->get('count');
   $hide_child_terms = $faq_settings->get('hide_child_terms');
   $show_term_page_children = $faq_settings->get('show_term_page_children');
@@ -120,9 +114,6 @@ function template_preprocess_faq_category_questions_top(&$variables) {
     $get_child_terms = $parent_term->id();
     $show_term_page_children = TRUE;
   }
-
-  // Configure "back to top" link.
-  $back_to_top = FaqViewer::initBackToTop($this_page);
 
   // Get number of questions, and account for hidden sub-categories.
   $count = 0;
@@ -195,7 +186,7 @@ function template_preprocess_faq_category_questions_top(&$variables) {
     $questions[] = l($node->getTitle(), $this_page, array('fragment' => $anchor));
     FaqViewer::viewQuestion($node_var, $node, NULL, $anchor);
     if ($group_questions_top || $category_display == 'hide_qa') {
-      FaqViewer::viewAnswer($node_var, $node, $back_to_top, $teaser, $links);
+      FaqViewer::viewAnswer($node_var, $node, $teaser);
     }
     $nodes[] = $node_var;
   }
@@ -226,12 +217,9 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   $category_display = $variables['category_display'];
   $term = $variables['term'];
   $parent_term = $variables['parent_term'];
-  $class = $variables['class'];
 
   // Fetch configuration.
   $teaser = $faq_settings->get('use_teaser');
-  $links = $faq_settings->get('show_node_links');
-  $disable_node_links = $faq_settings->get('disable_node_links');
   $hide_child_terms = $faq_settings->get('hide_child_terms');
   $show_term_page_children = $faq_settings->get('show_term_page_children');
   $group_questions_top = $faq_settings->get('group_questions_top');
@@ -275,9 +263,6 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
     $show_term_page_children = TRUE;
   }
 
-  // Configure "back to top" link.
-  $back_to_top = FaqViewer::initBackToTop($this_page);
-
   // taxonomy_image does not exists in D8 yet
   // Get taxonomy image.
   $variables['term_image'] = '';
@@ -296,7 +281,7 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
     $node_var = array();
     $anchor = 't' . $term->id() . 'n' . $node->id();
     FaqViewer::viewQuestion($node_var, $node, NULL, $anchor);
-    FaqViewer::viewAnswer($node_var, $node, $back_to_top, $teaser, $links);
+    FaqViewer::viewAnswer($node_var, $node, $teaser);
     $nodes[] = $node_var;
   }
   $variables['use_teaser'] = $teaser;

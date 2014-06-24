@@ -41,7 +41,7 @@ function template_preprocess_faq_questions_inline(&$variables) {
   foreach ($data as $node) {
     $anchor = 'n' . $node->id();
     FaqViewer::viewQuestion($nodes[$count], $node, NULL, $anchor);
-    FaqViewer::viewAnswer($nodes[$count], $node, $back_to_top, $teaser, $links);
+    FaqViewer::viewAnswer($nodes[$count], $node, $teaser);
     $count++;
   }
   $variables['use_teaser'] = $teaser;
@@ -65,8 +65,6 @@ function template_preprocess_faq_category_questions_inline(&$variables) {
 
   // Fetch configuration.
   $teaser = $faq_settings->get('use_teaser');
-  $links = $faq_settings->get('show_node_links');
-  $disable_node_links = $faq_settings->get('disable_node_links');
   $display_faq_count = $faq_settings->get('count');
   $hide_child_terms = $faq_settings->get('hide_child_terms');
   $show_term_page_children = $faq_settings->get('show_term_page_children');
@@ -93,10 +91,6 @@ function template_preprocess_faq_category_questions_inline(&$variables) {
     $get_child_terms = $parent_term->id();
     $show_term_page_children = TRUE;
   }
-
-
-  // Configure "back to top" link.
-  $back_to_top = FaqViewer::initBackToTop($this_page);
 
   // Configure labels.
   $variables['question_label'] = '';
@@ -168,7 +162,7 @@ function template_preprocess_faq_category_questions_inline(&$variables) {
     $node_var = array();
     $anchor = 't' . $term_id . 'n' . $node->id();
     FaqViewer::viewQuestion($node_var, $node, NULL, $anchor);
-    FaqViewer::viewAnswer($node_var, $node, $back_to_top, $teaser, $links);
+    FaqViewer::viewAnswer($node_var, $node, $teaser);
     $nodes[] = $node_var;
   }
   $variables['nodes'] = $nodes;

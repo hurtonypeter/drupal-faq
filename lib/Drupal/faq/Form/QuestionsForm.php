@@ -170,7 +170,7 @@ class QuestionsForm extends ConfigFormBase {
       ->set('question_label', $form_state['values']['faq_question_label'])
       ->set('answer_label', $form_state['values']['faq_answer_label'])
       ->set('question_length', $form_state['values']['faq_question_length'])
-      ->set('question_long_form', $form_state['values']['faq_question_long_form'])
+      //->set('question_long_form', $form_state['values']['faq_question_long_form'])
       ->set('hide_qa_accordion', $form_state['values']['faq_hide_qa_accordion'])
       ->set('show_expand_all', $form_state['values']['faq_show_expand_all'])
       ->set('use_teaser', $form_state['values']['faq_use_teaser'])

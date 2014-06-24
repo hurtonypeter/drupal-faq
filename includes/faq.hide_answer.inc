@@ -22,16 +22,12 @@ function template_preprocess_faq_hide_answer(&$variables) {
 
   // Fetch configuration.
   $teaser = $faq_settings->get('use_teaser');
-  $links = $faq_settings->get('show_node_links');
-  $disable_node_links = $faq_settings->get('disable_node_links');
 
   $nodes = array();
-  $count = 0;
-  foreach ($data as $node) {
+  foreach ($data as $index=>$node) {
     $anchor = 'n' . $node->id();
-    FaqViewer::viewQuestion($nodes[$count], $node, $this_page, $anchor);
-    FaqViewer::viewAnswer($nodes[$count], $node, array(), $teaser, $links);
-    $count++;
+    FaqViewer::viewQuestion($nodes[$index], $node, $this_page, $anchor);
+    FaqViewer::viewAnswer($nodes[$index], $node, $teaser);
   }
   $variables['use_teaser'] = $teaser;
   $variables['nodes'] = $nodes;
@@ -55,8 +51,6 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   // Fetch configuration.
   $teaser = $faq_settings->get('use_teaser');
   $variables['use_teaser'] = $teaser;
-  $links = $faq_settings->get('show_node_links');
-  $disable_node_links = $faq_settings->get('disable_node_links');
   $display_faq_count = $faq_settings->get('count');
   $hide_child_terms = $faq_settings->get('hide_child_terms');
   $show_term_page_children = $faq_settings->get('show_term_page_children');
@@ -146,7 +140,7 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
     $node_var = array();
     $anchor = 't' . $term_id . 'n' . $node->id();
     FaqViewer::viewQuestion($node_var, $node, $this_page, $anchor);
-    FaqViewer::viewAnswer($node_var, $node, array(), $teaser, $links);
+    FaqViewer::viewAnswer($node_var, $node, $teaser);
     $nodes[] = $node_var;
   }
   $variables['nodes'] = $nodes;

@@ -63,9 +63,9 @@ class FaqViewer {
     }
     $question = '<span datatype="" property="dc:title">' . $question . '</span>';
 
-    $detailed_question = $node->get('field_detailed_question')->getValue();
+    $detailed_question = $node->get('field_detailed_question')->value;
     if ($faq_settings->get('display') != 'hide_answer' && !empty($detailed_question) && $faq_settings->get('question_length') == 'both') {
-      $question .= '<div class="faq-detailed-question">' . $detailed_question[0]['value'] . '</div>';
+      $question .= '<div class="faq-detailed-question">' . $detailed_question . '</div>';
     }
     $data['question'] = $question;
   }
@@ -84,15 +84,15 @@ class FaqViewer {
    * @param bool $links
    *   Whether or not to show node links.
    */
-  public static function viewAnswer(&$data, \Drupal\node\NodeInterface $node, $back_to_top, $teaser, $links) {
-
+  public static function viewAnswer(&$data, \Drupal\node\NodeInterface $node, $teaser) {
+    
     // TODO: hide 'submitted by ... on ...'
     $view_mode = $teaser ? 'teaser' : 'full';
 
     $node_build = node_view($node, $view_mode);
     $content = drupal_render($node_build);
     
-    $content .= $back_to_top;
+    $content .= FaqViewer::initBackToTop();
 
     $data['body'] = $content;
   }
@@ -107,11 +107,11 @@ class FaqViewer {
    * @return
    *   An array containing the "back to top" link.
    */
-  public static function initBackToTop($path) {
+  public static function initBackToTop() {
     
     $faq_settings = \Drupal::config('faq.settings');
 
-    $back_to_top = array();
+    $back_to_top = '';
     $back_to_top_text = trim($faq_settings->get('back_to_top'));
     if (!empty($back_to_top_text)) {
       $options = array(
@@ -119,9 +119,9 @@ class FaqViewer {
         'html' => TRUE,
         'fragment' => 'top',
       );
-      $back_to_top = l(String::checkPlain($back_to_top_text), $path, $options);
+      $back_to_top = l(String::checkPlain($back_to_top_text), current_path(), $options);
     }
-
+    
     return $back_to_top;
   }
 
