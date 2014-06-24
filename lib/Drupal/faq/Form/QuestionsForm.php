@@ -121,12 +121,13 @@ class QuestionsForm extends ConfigFormBase {
       '#default_value' => $faq_settings->get('use_teaser')
     );
 
-    $form['faq_questions_misc']['faq_show_node_links'] = array(
-      '#type' => 'checkbox',
-      '#title' => $this->t('Show node links'),
-      '#description' => $this->t('This enables the display of links under the answer text on the faq page.  Examples of these links include "Read more", "Add comment".'),
-      '#default_value' => $faq_settings->get('show_node_links')
-    );
+    // This setting has no meaning in D8 since comments are fields and read more link depends on view mode settings
+    //$form['faq_questions_misc']['faq_show_node_links'] = array(
+    //  '#type' => 'checkbox',
+    //  '#title' => $this->t('Show node links'),
+    //  '#description' => $this->t('This enables the display of links under the answer text on the faq page.  Examples of these links include "Read more", "Add comment".'),
+    //  '#default_value' => $faq_settings->get('show_node_links')
+    //);
 
     $form['faq_questions_misc']['faq_back_to_top'] = array(
       '#type' => 'textfield',
@@ -174,7 +175,7 @@ class QuestionsForm extends ConfigFormBase {
       ->set('hide_qa_accordion', $form_state['values']['faq_hide_qa_accordion'])
       ->set('show_expand_all', $form_state['values']['faq_show_expand_all'])
       ->set('use_teaser', $form_state['values']['faq_use_teaser'])
-      ->set('show_node_links', $form_state['values']['faq_show_node_links'])
+      //->set('show_node_links', $form_state['values']['faq_show_node_links'])
       ->set('back_to_top', $form_state['values']['faq_back_to_top'])
       ->set('disable_node_links', $form_state['values']['faq_disable_node_links'])
       ->set('default_sorting', $form_state['values']['faq_default_sorting'])

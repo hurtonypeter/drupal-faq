@@ -12,7 +12,6 @@ question_long_form: TRUE
 hide_qa_accordion: FALSE
 show_expand_all: FALSE
 use_teaser: FALSE
-show_node_links: FALSE
 back_to_top: 'Back to Top'
 disable_node_links: FALSE
 default_sorting: 'DESC'
