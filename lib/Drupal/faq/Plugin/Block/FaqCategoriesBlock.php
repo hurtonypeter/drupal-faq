@@ -31,6 +31,9 @@ class FaqCategoriesBlock extends BlockBase {
     $items = array();
 
     $faq_settings = \Drupal::config('faq.settings');
+    if(!$faq_settings->get('use_categories')) {
+      return;
+    }
     $moduleHandler = \Drupal::moduleHandler();
     
     if ($moduleHandler->moduleExists('taxonomy')) {
