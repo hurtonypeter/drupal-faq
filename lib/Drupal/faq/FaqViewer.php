@@ -17,13 +17,13 @@ class FaqViewer {
   /**
    * Helper function to setup the faq question.
    *
-   * @param &$data
+   * @param array &$data
    *   Array reference to store display data in.
-   * @param $node
+   * @param \Drupal\node\NodeInterface $node
    *   The node object.
-   * @param $path
+   * @param string $path
    *   The path/url which the question should link to if links are disabled.
-   * @param $anchor
+   * @param string $anchor
    *   Link anchor to use in question links.
    */
   public static function viewQuestion(&$data, \Drupal\node\NodeInterface $node, $path = NULL, $anchor = NULL) {
@@ -73,15 +73,15 @@ class FaqViewer {
   /**
    * Helper function to setup the faq answer.
    *
-   * @param &$data
+   * @param array &$data
    *   Array reference to store display data in.
    * @param Drupal\node\NodeInterface $node
    *   The node object.
-   * @param $back_to_top
+   * @param string $back_to_top
    *   An array containing the "back to top" link.
-   * @param $teaser
+   * @param bool $teaser
    *   Whether or not to use teasers.
-   * @param $links
+   * @param bool $links
    *   Whether or not to show node links.
    */
   public static function viewAnswer(&$data, \Drupal\node\NodeInterface $node, $back_to_top, $teaser, $links) {
@@ -89,12 +89,7 @@ class FaqViewer {
     // TODO: hide 'submitted by ... on ...'
     $view_mode = $teaser ? 'teaser' : 'full';
 
-    // we don't want to display title and detailed questions two times
-    $node->set('title', '');
-    $node->set('field_detailed_question', '');
-
     $node_build = node_view($node, $view_mode);
-
     $content = drupal_render($node_build);
     
     $content .= $back_to_top;
@@ -105,7 +100,7 @@ class FaqViewer {
   /**
    * Helper function to setup the "back to top" link.
    *
-   * @param $path
+   * @param string $path
    *   The path/url where the "back to top" link should bring the user too.  This
    *   could be the 'faq-page' page or one of the categorized faq pages, e.g 'faq-page/123'
    *   where 123 is the tid.
