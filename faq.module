@@ -53,6 +53,27 @@ function faq_permission(){
 }
 
 /**
+ * Implements hook_node_access().
+ */
+function faq_node_access(\Drupal\node\NodeInterface $node, $op, $account, $langcode) {
+  // Ignore non-FAQ node.
+  if ($node->getType() !== 'faq') {
+    return NODE_ACCESS_IGNORE;
+  }
+  
+  if ($op == 'view') {
+    return NODE_ACCESS_IGNORE;
+  }
+  elseif ($op == 'create' || $op == 'update' || $op == 'delete') {
+    if (user_access('administer faq')) {
+      return NODE_ACCESS_ALLOW;
+    }
+  }
+  
+  return NODE_ACCESS_IGNORE;
+}
+
+/**
  * Implements hook_theme().
  */
 function faq_theme() {
