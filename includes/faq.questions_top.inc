@@ -39,7 +39,6 @@ function template_preprocess_faq_questions_top(&$variables) {
   $answers = array();
   $key = 0;
   foreach ($data as $node) {
-    //var_dump($node);
     $anchor = 'n' . $node->id();
     $questions[$key] = l($node->getTitle(), $this_page, array('fragment' => $anchor));
     FaqViewer::viewQuestion($answers[$key], $node, NULL, $anchor);

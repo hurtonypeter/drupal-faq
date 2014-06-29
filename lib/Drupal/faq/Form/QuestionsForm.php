@@ -91,14 +91,11 @@ class QuestionsForm extends ConfigFormBase {
       '#default_value' => $faq_settings->get('question_length')
     );
 
-    // TODO: implement it if the necessary hook is complete
-    // see https://api.drupal.org/api/drupal/core!modules!node!node.api.php/group/node_api_hooks/8
-    // "Preparing a node for editing" section
-    //$form['faq_questions_misc']['faq_question_long_form'] = array(
-    //  '#type' => 'checkbox',
-    //  '#title' => $this->t('Allow long question text to be configured'),
-    //  '#default_value' => $faq_settings->get('question_long_form')
-    //);
+    $form['faq_questions_misc']['faq_question_long_form'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Allow long question text to be configured'),
+      '#default_value' => $faq_settings->get('question_long_form')
+    );
 
     $form['faq_questions_misc']['faq_hide_qa_accordion'] = array(
       '#type' => 'checkbox',
@@ -171,7 +168,7 @@ class QuestionsForm extends ConfigFormBase {
       ->set('question_label', $form_state['values']['faq_question_label'])
       ->set('answer_label', $form_state['values']['faq_answer_label'])
       ->set('question_length', $form_state['values']['faq_question_length'])
-      //->set('question_long_form', $form_state['values']['faq_question_long_form'])
+      ->set('question_long_form', $form_state['values']['faq_question_long_form'])
       ->set('hide_qa_accordion', $form_state['values']['faq_hide_qa_accordion'])
       ->set('show_expand_all', $form_state['values']['faq_show_expand_all'])
       ->set('use_teaser', $form_state['values']['faq_use_teaser'])
