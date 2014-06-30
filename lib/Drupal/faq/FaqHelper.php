@@ -8,6 +8,7 @@
 namespace Drupal\faq;
 
 use Drupal\node\Entity\Node;
+use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Contains static helper functions for FAQ module.
@@ -205,6 +206,25 @@ class FaqHelper {
     }
 
     return $child_categories;
+  }
+  
+  /**
+   * Returns an array containing the vocabularies related to the FAQ node type.
+   * 
+   * @return array Array containing the FAQ related vocabularies.
+   */
+  public static function faqRelatedVocabularies() {
+    $faq_type = \Drupal::entityManager()->getStorage('node')->create(array('type' => 'faq'));
+    $faq_fields = $faq_type->getFieldDefinitions();
+    $vids = array();
+    foreach ($faq_fields as $field) {
+      if ($field instanceof \Drupal\field\Entity\FieldInstanceConfig && $field->getType() == 'taxonomy_term_reference') {
+        //var_dump($field->getField());
+        $vids[] = substr($field->getField()->getName(), 6);
+      }
+    }
+
+    return Vocabulary::loadMultiple($vids);
   }
 
 }
