@@ -13,7 +13,7 @@ use Drupal\faq\FaqHelper;
 /**
  * Implements hook_help().
  */
-function faq_help($route_name, \Symfony\Component\HttpFoundation\Request $request) {
+function faq_help($route_name, \Drupal\Core\Routing\RouteMatchInterface $route_match) {
   $output = '';
   switch ($route_name) {
     case 'help.page.faq':
