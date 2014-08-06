@@ -9,7 +9,7 @@ namespace Drupal\faq\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\taxonomy\Entity\Vocabulary;
-use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Form for the FAQ settings page - categories tab.
@@ -26,7 +26,7 @@ class CategoriesForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $faq_settings = $this->config('faq.settings');
 
     // Set up a hidden variable.
@@ -144,7 +144,7 @@ class CategoriesForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     // Remove unnecessary values.
     form_state_values_clean($form_state);
 

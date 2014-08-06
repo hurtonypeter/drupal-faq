@@ -11,6 +11,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\faq\FaqHelper;
 use Drupal\Component\Utility\String;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Form for reordering the FAQ-s.
@@ -27,7 +28,7 @@ class OrderForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state, $category = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $category = NULL) {
 
     //get category id from route values
     if (is_numeric(arg(1))) {
@@ -163,7 +164,7 @@ class OrderForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($form_state['values']['op'] == t('Save order') && !empty($form_state['values']['order_no_cats'])) {
 
       foreach ($form_state['values']['order_no_cats'] as $i => $faq) {

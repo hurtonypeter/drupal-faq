@@ -8,7 +8,7 @@
 namespace Drupal\faq\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Form for the FAQ settings page - questions tab.
@@ -25,7 +25,7 @@ class QuestionsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $faq_settings = $this->config('faq.settings');
 
     $display_options['questions_inline'] = $this->t('Questions inline');
@@ -157,7 +157,7 @@ class QuestionsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     // Remove unnecessary values.
     form_state_values_clean($form_state);
 
