@@ -210,12 +210,17 @@ function faq_order_settings_choose_cat_form_submit($form, &$form_state) {
 function faq_preprocess_page(&$variables){
   $faq_settings = \Drupal::config('faq.settings');
   $use_categories = $faq_settings->get('use_categories');
-  if (arg(0) == 'faq-page' && $use_categories && is_numeric(arg(1)) && $current_term = Term::load(arg(1))) {
+  
+  $route_match = \Drupal::service('current_route_match');
+  $tid = $route_match->getRawParameter('tid');
+  
+  if (FaqHelper::arg(0) == 'faq-page' && $use_categories && is_numeric($tid) && $current_term = Term::load($tid)) {
     $breadcrumb = FaqHelper::setFaqBreadcrumb($current_term);
     if (!empty($breadcrumb)) {
       $variables['breadcrumb']['#breadcrumb'] = $breadcrumb;
     }
   }
+
 }
 
 /**

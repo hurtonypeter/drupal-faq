@@ -31,8 +31,8 @@ class OrderForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $category = NULL) {
 
     //get category id from route values
-    if (is_numeric(arg(1))) {
-      $category = arg(1);
+    if (is_numeric(FaqHelper::arg(1))) {
+      $category = FaqHelper::arg(1);
     }
 
     $order = $date_order = '';

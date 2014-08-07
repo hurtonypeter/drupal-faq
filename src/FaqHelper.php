@@ -207,7 +207,7 @@ class FaqHelper {
 
     return $child_categories;
   }
-  
+
   /**
    * Returns an array containing the vocabularies related to the FAQ node type.
    * 
@@ -225,6 +225,25 @@ class FaqHelper {
     }
 
     return Vocabulary::loadMultiple($vids);
+  }
+
+  /**
+   * Replacement for the old arg() function which is removed in drupal 8.0.0-alpha13
+   * TODO: this should be replaced with the a path service when these are not changing any more.
+   * 
+   * @param integer $id
+   *   Number of the path's part.
+   * @return string
+   *   The part of the path which indexed by the given id.
+   */
+  public static function arg($id) {
+    $url_comp = explode('/', request_path());
+    if (isset($url_comp[$id])) {
+      return $url_comp[$id];
+    }
+    else {
+      return null;
+    }
   }
 
 }

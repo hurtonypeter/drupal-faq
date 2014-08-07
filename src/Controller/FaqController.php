@@ -12,6 +12,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\faq\FaqHelper;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -47,9 +48,9 @@ class FaqController extends ControllerBase {
     $build['#attached']['css'] = array(
       drupal_get_path('module', 'faq') . '/css/faq.css'
     );
-    if (arg(0) == 'faq-page') {
-      $build['#title'] = $faq_settings->get('title');
-    }
+    
+    $build['#title'] = $faq_settings->get('title');
+    
     if (!$this->moduleHandler()->moduleExists('taxonomy')) {
       $tid = 0;
     }
@@ -147,9 +148,9 @@ class FaqController extends ControllerBase {
       if (!empty($tid)) {
         if ($term = Term::load($tid)) {
           $title = $faq_settings->get('title');
-          if (arg(0) == 'faq-page' && is_numeric(arg(1))) {
-            $build['#title'] = ($title . ($title ? ' - ' : '') . $this->t($term->getName()));
-          }
+          
+          $build['#title'] = ($title . ($title ? ' - ' : '') . $this->t($term->getName()));
+          
           $this->_displayFaqByCategory($faq_display, $category_display, $term, 0, $output, $output_answers);
           $to_render = array(
             '#theme' => 'faq_page',
@@ -205,18 +206,39 @@ class FaqController extends ControllerBase {
     }
 
     $faq_description = $faq_settings->get('description');
-    $format = $faq_settings->get('description_format');
-    if ($format) {
-      $faq_description = check_markup($faq_description, $format);
-    }
-
+    //var_dump($output);var_dump($output_answers);var_dump($faq_description);
     $markup = array(
       '#theme' => 'faq_page',
-      '#content' => $output,
-      '#answers' => $output_answers,
-      '#description' => $faq_description,
+      '#content' => SafeMarkup::set($output),
+      '#answers' => SafeMarkup::set($output_answers),
+      '#description' => SafeMarkup::set($faq_description),
     );
     $build['#markup'] = drupal_render($markup);
+
+//    $build['#type'] = 'inline_template';
+//    $build['#template'] = '<div class="faq-content">
+//          <div class="faq">
+//              {% if description is not empty %}
+//                  <div class="faq-description">
+//                      {{ description }}
+//                  </div>
+//              {% endif %}
+//              {% if faq_expand %}
+//                  <div id="faq-expand-all">
+//                      <a class="faq-expand-all-link" href="#faq-expand-all-link">[expand all]</a>
+//                      <a class="faq-collapse-all-link" href="#faq-collapse-all-link">[collapse all]</a>
+//                  </div>
+//              {% endif %}
+//              {{ content }}
+//              {{ answers }}
+//          </div>
+//      </div>';
+//    $build['#engine'] = 'twig';
+//    $build['#context'] = array(
+//      'content' => SafeMarkup::set($output),
+//      'answers' => SafeMarkup::set($output_answers),
+//      'description' => $faq_description,
+//    );
 
     return $build;
   }

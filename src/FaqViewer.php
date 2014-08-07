@@ -8,6 +8,7 @@
 namespace Drupal\faq;
 
 use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Controlls the display of questions and answers.
@@ -35,12 +36,12 @@ class FaqViewer {
     // Don't link to faq node, instead provide no link, or link to current page.
     if ($disable_node_links) {
       if (empty($path) && empty($anchor)) {
-        $question = String::checkPlain($node->getTitle());
+        $question = $node->getTitle();
       }
       elseif (empty($path)) {
         // Can't seem to use l() function with empty string as screen-readers
         // don't like it, so create anchor name manually.
-        $question = '<a id="' . $anchor . '"></a>' . String::checkPlain($node->getTitle());
+        $question = '<a id="' . $anchor . '"></a>' . $node->getTitle();
       }
       else {
         $options = array();
@@ -67,7 +68,7 @@ class FaqViewer {
     if ($faq_settings->get('display') != 'hide_answer' && !empty($detailed_question) && $faq_settings->get('question_length') == 'both') {
       $question .= '<div class="faq-detailed-question">' . $detailed_question . '</div>';
     }
-    $data['question'] = $question;
+    $data['question'] = SafeMarkup::set($question);
   }
 
   /**
@@ -94,7 +95,7 @@ class FaqViewer {
     
     $content .= FaqViewer::initBackToTop();
 
-    $data['body'] = $content;
+    $data['body'] = SafeMarkup::set($content);
   }
 
   /**

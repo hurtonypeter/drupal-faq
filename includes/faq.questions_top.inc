@@ -28,8 +28,8 @@ function template_preprocess_faq_questions_top(&$variables) {
   $variables['question_label'] = '';
   $variables['answer_label'] = '';
   if ($faq_settings->get('qa_mark')) {
-    $variables['question_label'] = String::checkPlain($faq_settings->get('question_label'));
-    $variables['answer_label'] = String::checkPlain($faq_settings->get('answer_label'));
+    $variables['question_label'] = $faq_settings->get('question_label');
+    $variables['answer_label'] = $faq_settings->get('answer_label');
   }
 
   $this_page = current_path();
@@ -89,8 +89,8 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   $variables['question_label'] = '';
   $variables['answer_label'] = '';
   if ($faq_settings->get('qa_mark')) {
-    $variables['question_label'] = String::checkPlain($faq_settings->get('question_label'));
-    $variables['answer_label'] = String::checkPlain($faq_settings->get('answer_label'));
+    $variables['question_label'] = $faq_settings->get('question_label');
+    $variables['answer_label'] = $faq_settings->get('answer_label');
   }
 
   // Initialise some variables.
@@ -101,10 +101,10 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   $this_page = current_path();
   $get_child_terms = 0;
   // Check if we're on a faq page.
-  if (arg(0) == 'faq-page') {
+  if (FaqHelper::arg(0) == 'faq-page') {
     // Check if we're on a categorized faq page.
-    if (is_numeric(arg(1))) {
-      $get_child_terms = arg(1);
+    if (is_numeric(FaqHelper::arg(1))) {
+      $get_child_terms = FaqHelper::arg(1);
     }
   }
   // Force some settings in case we're processing a special faq question list
@@ -132,12 +132,12 @@ function template_preprocess_faq_category_questions_top(&$variables) {
   $term_id = $term->id();
   // Configure header.
   $variables['category_depth'] = $term->depth;
-  $variables['category_name'] = String::checkPlain($term->getName());
+  $variables['category_name'] = $term->getName();
   if ($category_display == 'hide_qa') {
     $variables['header_title'] = l($term->getName(), "faq/$term_id");
   }
   else {
-    $variables['header_title'] = String::checkPlain($term->getName());
+    $variables['header_title'] = $term->getName();
   }
 
   // Configure category description.
@@ -228,8 +228,8 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   $variables['question_label'] = '';
   $variables['answer_label'] = '';
   if ($faq_settings->get('qa_mark')) {
-    $variables['question_label'] = String::checkPlain($faq_settings->get('question_label'));
-    $variables['answer_label'] = String::checkPlain($faq_settings->get('answer_label'));
+    $variables['question_label'] = $faq_settings->get('question_label');
+    $variables['answer_label'] = $faq_settings->get('answer_label');
   }
 
   // Initialise some variables.
@@ -249,10 +249,10 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   $this_page = current_path();
   $get_child_terms = 0;
   // Check if we're on a faq page.
-  if (arg(0) == 'faq-page') {
+  if (FaqHelper::arg(0) == 'faq-page') {
     // Check if we're on a categorized faq page.
-    if (is_numeric(arg(1))) {
-      $get_child_terms = arg(1);
+    if (is_numeric(FaqHelper::arg(1))) {
+      $get_child_terms = FaqHelper::arg(1);
     }
   }
   // Force some settings in case we're processing a special faq question list
@@ -285,7 +285,7 @@ function template_preprocess_faq_category_questions_top_answers(&$variables) {
   }
   $variables['use_teaser'] = $teaser;
   $variables['nodes'] = $nodes;
-  $variables['category_name'] = String::checkPlain(t($term->getName()));
+  $variables['category_name'] = t($term->getName());
   $variables['category_depth'] = $term->depth;
   $variables['display_header'] = FALSE;
   $variables['answer_category_name'] = $faq_settings->get('answer_category_name');
