@@ -154,8 +154,8 @@ class FaqController extends ControllerBase {
           $this->_displayFaqByCategory($faq_display, $category_display, $term, 0, $output, $output_answers);
           $to_render = array(
             '#theme' => 'faq_page',
-            '#content' => $output,
-            '#answers' => $output_answers,
+            '#content' => SafeMarkup::set($output),
+            '#answers' => SafeMarkup::set($output_answers),
           );
           $build['#markup'] = drupal_render($to_render);
           return $build;
@@ -479,7 +479,7 @@ class FaqController extends ControllerBase {
    * @param $tid
    *   Term id.
    * @return
-   *   Return a HTML formatted list of terms indented according to the term depth.
+   *   Return an array of a list of terms indented according to the term depth.
    */
   private function _getIndentedFaqTerms($vid, $tid) {
     //if ($this->moduleHandler()->moduleExists('pathauto')) {
@@ -538,7 +538,7 @@ class FaqController extends ControllerBase {
           }
         }
         else {
-          $cur_item = String::checkPlain($this->t($term->getName())) . $desc;
+          $cur_item = $this->t($term->getName()) . $desc;
         }
         if (!empty($term_image)) {
           $cur_item .= '<div class="clear-block"></div>';
@@ -559,7 +559,7 @@ class FaqController extends ControllerBase {
   }
 
   /**
-   * Renders the output of getIntendedTerms to HTML list.
+   * Renders the output of getIntendedFaqTerms to HTML list.
    * 
    * @param array $items
    *   The structured array made by getIntendedTerms function
@@ -577,7 +577,7 @@ class FaqController extends ControllerBase {
       if (!empty($item['children'])) {
         $pre = $this->_renderCategoriesToList($item['children'], $list_style);
       }
-      $list[] = $item['item'] . $pre;
+      $list[] = SafeMarkup::set($item['item'] . $pre);
     }
     
     $render = array(

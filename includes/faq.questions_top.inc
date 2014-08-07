@@ -7,7 +7,6 @@
 
 use Drupal\faq\FaqHelper;
 use Drupal\faq\FaqViewer;
-use Drupal\Component\Utility\String;
 
 /**
  * Create the structure of the page, when the questions are to be shown on top.

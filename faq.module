@@ -237,7 +237,7 @@ function faq_preprocess_page(&$variables){
  */
 function faq_node_view_alter(&$build, \Drupal\node\NodeInterface $node, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display) {
   // check the node is faq-type and we are on the faq-page
-  if ($node->type->value == 'faq' && arg(0) == 'faq-page') {
+  if ($node->type->value == 'faq' && FaqHelper::arg(0) == 'faq-page') {
     $build['title']['#access'] = false;
     $build['field_detailed_question']['#access'] = false;
   }

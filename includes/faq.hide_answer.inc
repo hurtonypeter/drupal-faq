@@ -7,7 +7,7 @@
 
 use Drupal\faq\FaqHelper;
 use Drupal\faq\FaqViewer;
-use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Create FAQ page if set to show/hide answer when question is clicked.
@@ -64,10 +64,10 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   $this_page = current_path();
   $get_child_terms = 0;
   // Check if we're on a faq page.
-  if (arg(0) == 'faq-page') {
+  if (FaqHelper::arg(0) == 'faq-page') {
     // Check if we're on a categorized faq page.
-    if (is_numeric(arg(1))) {
-      $get_child_terms = arg(1);
+    if (is_numeric(FaqHelper::arg(1))) {
+      $get_child_terms = FaqHelper::arg(1);
     }
   }
   // Force some settings in case we're processing a special faq question list
@@ -93,16 +93,16 @@ function template_preprocess_faq_category_hide_answer(&$variables) {
   //}
   // Configure header.
   $variables['category_depth'] = $term->depth;
-  $variables['category_name'] = String::checkPlain($term->getName());
+  $variables['category_name'] = $term->getName();
   if ($category_display == 'hide_qa') {
     $variables['header_title'] = l($term->getName(), "faq/$term_id");
   }
   else {
-    $variables['header_title'] = String::checkPlain($term->getName());
+    $variables['header_title'] = $term->getName();
   }
 
   // Configure category description.
-  $variables['description'] = $term->getDescription();
+  $variables['description'] = SafeMarkup::set($term->getDescription());
 
   // Get list of sub-categories if necessary.
   $child_categories = array();
