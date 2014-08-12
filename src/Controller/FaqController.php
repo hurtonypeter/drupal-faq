@@ -206,7 +206,7 @@ class FaqController extends ControllerBase {
     }
 
     $faq_description = $faq_settings->get('description');
-    //var_dump($output);var_dump($output_answers);var_dump($faq_description);
+    
     $markup = array(
       '#theme' => 'faq_page',
       '#content' => SafeMarkup::set($output),
@@ -214,31 +214,6 @@ class FaqController extends ControllerBase {
       '#description' => SafeMarkup::set($faq_description),
     );
     $build['#markup'] = drupal_render($markup);
-
-//    $build['#type'] = 'inline_template';
-//    $build['#template'] = '<div class="faq-content">
-//          <div class="faq">
-//              {% if description is not empty %}
-//                  <div class="faq-description">
-//                      {{ description }}
-//                  </div>
-//              {% endif %}
-//              {% if faq_expand %}
-//                  <div id="faq-expand-all">
-//                      <a class="faq-expand-all-link" href="#faq-expand-all-link">[expand all]</a>
-//                      <a class="faq-collapse-all-link" href="#faq-collapse-all-link">[collapse all]</a>
-//                  </div>
-//              {% endif %}
-//              {{ content }}
-//              {{ answers }}
-//          </div>
-//      </div>';
-//    $build['#engine'] = 'twig';
-//    $build['#context'] = array(
-//      'content' => SafeMarkup::set($output),
-//      'answers' => SafeMarkup::set($output_answers),
-//      'description' => $faq_description,
-//    );
 
     return $build;
   }

@@ -214,16 +214,15 @@ class FaqHelper {
    * @return array Array containing the FAQ related vocabularies.
    */
   public static function faqRelatedVocabularies() {
-    $faq_type = \Drupal::entityManager()->getStorage('node')->create(array('type' => 'faq'));
-    $faq_fields = $faq_type->getFieldDefinitions();
     $vids = array();
-    foreach ($faq_fields as $field) {
-      if ($field instanceof \Drupal\field\Entity\FieldInstanceConfig && $field->getType() == 'taxonomy_term_reference') {
-        //var_dump($field->getField());
-        $vids[] = substr($field->getField()->getName(), 6);
+    foreach (\Drupal::entityManager()->getFieldDefinitions('node', 'faq') as $field_definition) {
+      if ($field_definition->getType() == 'taxonomy_term_reference') {
+        foreach($field_definition->getSetting('allowed_values') as $allowed_values) {
+          $vids[] = $allowed_values['vocabulary'];
+        }
       }
     }
-
+    
     return Vocabulary::loadMultiple($vids);
   }
 
