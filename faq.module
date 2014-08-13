@@ -65,7 +65,7 @@ function faq_node_access(\Drupal\node\NodeInterface $node, $op, $account, $langc
     return NODE_ACCESS_IGNORE;
   }
   elseif ($op == 'create' || $op == 'update' || $op == 'delete') {
-    if (user_access('administer faq')) {
+    if(\Drupal::currentUser()->hasPermission('administer faq')) {
       return NODE_ACCESS_ALLOW;
     }
   }
