@@ -86,13 +86,20 @@ class FaqViewer {
    *   Whether or not to show node links.
    */
   public static function viewAnswer(&$data, \Drupal\node\NodeInterface $node, $teaser) {
-    
+    $faq_settings = \Drupal::config('faq.settings');
+
     // TODO: hide 'submitted by ... on ...'
     $view_mode = $teaser ? 'teaser' : 'full';
 
     $node_build = node_view($node, $view_mode);
-    $content = drupal_render($node_build);
     
+    hide($node_build['title']);
+    if (!$faq_settings->get('question_long_form')) {
+      hide($node_build['field_detailed_question']);
+    }
+    
+    $content = drupal_render($node_build);
+
     $content .= FaqViewer::initBackToTop();
 
     $data['body'] = SafeMarkup::set($content);
@@ -109,7 +116,7 @@ class FaqViewer {
    *   An array containing the "back to top" link.
    */
   public static function initBackToTop() {
-    
+
     $faq_settings = \Drupal::config('faq.settings');
 
     $back_to_top = '';
@@ -122,7 +129,7 @@ class FaqViewer {
       );
       $back_to_top = l(String::checkPlain($back_to_top_text), current_path(), $options);
     }
-    
+
     return $back_to_top;
   }
 
