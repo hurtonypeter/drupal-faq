@@ -12,6 +12,8 @@ page is automatically generated from the FAQ nodes configured.
 4. Configure the module at admin/config/content/faq
 5. Your FAQ-s are available at /faq-page and /faq-page/{taxonomy**termid} depends on the settings at the previous point.
 
+Note: this is a dev version, tested on the drupal 8.0.x-dev core.
+
 ### Features
 The layout of the FAQ page can be modified on the settings page. There are four question and answer layouts to choose from. In addition, if the 'Taxonomy' module is enabled, it is possible to put the questions into different categories when editing. Users will need the 'view faq page' permission to view the built-in 'faq' page and will need the 'administer faq' permission to configure the layout, etc.
 There is a block included in this module: FAQ categories shows FAQ-related taxonomy terms in a block.
